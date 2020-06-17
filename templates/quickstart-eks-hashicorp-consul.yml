@@ -12,6 +12,9 @@ Parameters:
     Default: "1.7.2"
     AllowedValues: 
     - "1.7.2"
+  KubernetesNameSpace:
+    Type: String
+    Default: "default"
 Resources:
   ConsulHelmChart:
     Type: "AWSQS::Kubernetes::Helm"
