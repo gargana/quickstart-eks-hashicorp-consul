@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the Hashicorp Consul helm chart into a Kubernetes cluster (qp-1qmcrhdml)"
+Description: "Deploys the HashiCorp Consul helm chart into a Kubernetes cluster (qp-1qmcrhdml)."
 Metadata:
   QSLint:
     Exclusions: [W9002, W9003, W9004, W9006]
@@ -14,14 +14,17 @@ Parameters:
     - "1.7.2"
   ConsulReplicas:
     Type: String
-    Default: "3"
+    Default: 3
     AllowedValues:
-    - "3"
-    - "5"
-    - "7"
+    - 3
+    - 5
+    - 7
   KubernetesNameSpace:
     Type: String
     Default: "default"
+  HelmDeploymentName:
+    Type: String
+    Default: "andrewconsul"
   OIDCProvider:
     Type: String
     Description: Amazon EKS cluster OIDC provider. (Without the protocol e.g. oidc.eks.us-east-1.amazonaws.com/id/SADFASFFASFXCCVXCVSDFSDF)
@@ -125,7 +128,7 @@ Resources:
     Properties:
       ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeGet-${ClusterName}"
       ClusterName: !Ref "ClusterName"
-      Name: "service/consul-consul-ui"
+      Name: !Sub "service/${HelmDeploymentName}-ui"
       Namespace: !Ref "KubernetesNameSpace"
       JsonPath: "{.status.loadBalancer.ingress[0].hostname}"
   # Fetch the Key for the Kubernetes Secret Containing the CA Cert
@@ -154,53 +157,45 @@ Resources:
       ClusterID: !Ref ClusterName
       Repository: https://helm.releases.hashicorp.com
       Namespace: !Ref KubernetesNameSpace
-      Name: "consul"
+      Name: !Ref HelmDeploymentName
       Chart: hashicorp/consul
-      Values:
+      ValueYaml: !Sub
+      - |
         global:
-          name: "consul"
-          # image: "consul:1.8.0-beta2"
-          # imageK8S: "hashicorp/consul-k8s:0.15.0"
-          datacenter: !Sub "{AWS::Region}"
+          name: "${HelmDeploymentName}"
+          datacenter: "${AWS::Region}"
 
           gossipEncryption:
             secretName: "consul-gossip-encryption-key"
             secretKey: "key"
 
+          enablePodSecurityPolicies: true
+
           tls:
-#            serverAdditionalDNSSANs: "" # TODO: [{{ Inject from Customer }}]
+            enabled: true
+            enableAutoEncrypt: true
+            ${DNSSAN}
+
+            verify: true
+            httpsOnly: true
+
             caCert:
               secretName: "consul-ca-cert"
-              secretKey: !Sub "${KubeGetCaCertSecretKey}" # TODO: "Fetch via KubeGet"
+              secretKey: "tls.crt"
             caKey:
               secretName: "consul-ca-key"
-              secretKey: !Sub "${KubeGetCaKeySecretKey}" # TODO: "Fetch via KubeGet"
+              secretKey: "tls.key"
 
-          # Settings related to federating with another Consul datacenter.
           federation:
             enabled: true
             createFederationSecret: true
-
-        # Server, when enabled, configures a server cluster to run. This should
-        # be disabled if you plan on connecting to a Consul cluster external to
-        # the Kube cluster.
         server:
-          replicas: !Ref "ConsulReplicas"
-          bootstrapExpect: !Ref "ConsulReplicas"
-
-          #enterpriseLicense:
-          #  secretName: {{>>>> input from customer}}
-          #  secretKey: {{>>>> input from customer}}
-
-          storage: 10Gi
-          storageClass: |
-            null
-
+          replicas: ${ConsulReplicas}
+          bootstrapExpect: ${ConsulReplicas}
           extraConfig: |
             {
               "log_level": "WARN"
             }
-
         client:
           enabled: true
           grpc: true
@@ -208,89 +203,42 @@ Resources:
             {
               "log_level": "WARN"
             }
-        dns:
-          enabled: "-"
-          #clusterIP: true null # TODO: {{ Andrew to consult on DNS configs - by default Consul looks up to 127.0.0.1 }}
-          #annotations: null
         ui:
           enabled: "true"
           service:
             enabled: true
             type: "LoadBalancer"
-            # https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
-            annotations:
-              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: !If [ CreateDns,!Sub "ACMCertificate", !Ref "ACMSSLCertificateArn" ]
-              service.beta.kubernetes.io/aws-load-balancer-internal: !If [ InternalLoadBalancer , "true", "false" ]
-            # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https|http|ssl|tcp)
-
+            annotations: |
+              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${SSLCertificate}
+              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+              service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+              ${IsInternalLoadBalancer}
+              ${ExternalName}
+              ${TTL}
         syncCatalog:
           enabled: true
-          #image: null
-          default: true # true will sync by default, otherwise requires annotation
-          k8sPrefix: k8s # TODO: {{ CFN Custom Prefix }}
-          k8sAllowNamespaces: ["*"] # TODO: "{{ CFN Custom Namespaces}}"]
-          k8sDenyNamespaces: [] # TODO: "{{ CFN Custom Namespaces}}"]
+          default: true
+          k8sPrefix: k8s
+          k8sAllowNamespaces: ["*"]
+          k8sDenyNamespaces: []
 
           consulNamespaces:
-            # consulDestinationNamespace is the name of the Consul namespace to register all
-            # k8s services into. If the Consul namespace does not already exist,
-            # it will be created. This will be ignored if `mirroringK8S` is true.
             consulDestinationNamespace: "default"
-
-            # mirroringK8S causes k8s services to be registered into a Consul namespace
-            # of the same name as their k8s namespace, optionally prefixed if
-            # `mirroringK8SPrefix` is set below. If the Consul namespace does not
-            # already exist, it will be created. Turning this on overrides the
-            # `consulDestinationNamespace` setting.
-            # `addK8SNamespaceSuffix` may no longer be needed if enabling this option.
             mirroringK8S: false
-
-            # If `mirroringK8S` is set to true, `mirroringK8SPrefix` allows each Consul namespace
-            # to be given a prefix. For example, if `mirroringK8SPrefix` is set to "k8s-", a
-            # service in the k8s `staging` namespace will be registered into the
-            # `k8s-staging` Consul namespace.
             mirroringK8SPrefix: ""
 
-          # addK8SNamespaceSuffix appends Kubernetes namespace suffix to
-          # each service name synced to Consul, separated by a dash.
-          # For example, for a service 'foo' in the default namespace,
-          # the sync process will create a Consul service named 'foo-default'.
-          # Set this flag to true to avoid registering services with the same name
-          # but in different namespaces as instances for the same Consul service.
-          # Namespace suffix is not added if 'annotationServiceName' is provided.
           addK8SNamespaceSuffix: true
-
-          # consulPrefix is the service prefix which prepends itself
-          # to Kubernetes services registered within Consul
-          # For example, "k8s-" will register all services prepended with "k8s-".
-          # (Kubernetes -> Consul sync)
-          # consulPrefix is ignored when 'annotationServiceName' is provided.
-          # NOTE: Updating this property to a non-null value for an existing installation will result in deregistering
-          # of existing services in Consul and registering them with a new name.
-          consulPrefix: consul # TODO: {{ CFN Custom Prefix }}
-
-          # k8sTag is an optional tag that is applied to all of the Kubernetes services
-          # that are synced into Consul. If nothing is set, defaults to "k8s".
-          # (Kubernetes -> Consul sync)
-          k8sTag: k8s # TODO: {{ CFN Custom Tag }}
-
-          # syncClusterIPServices syncs services of the ClusterIP type, which may
-          # or may not be broadly accessible depending on your Kubernetes cluster.
-          # Set this to false to skip syncing ClusterIP services.
+          consulPrefix: consul
+          k8sTag: k8s
           syncClusterIPServices: true
 
-          # Log verbosity level. One of "trace", "debug", "info", "warn", or "error".
           logLevel: warn
 
-        # ConnectInject will enable the automatic Connect sidecar injector.
         connectInject:
           enabled: true
           image: hashicorp/consul-k8s # image for consul-k8s that contains the injector
           default: true # true will inject by default, otherwise requires annotation
           imageEnvoy: envoyproxy/envoy-alpine
-          k8sAllowNamespaces: ["*"]
-
-          k8sDenyNamespaces: []
           consulNamespaces:
             consulDestinationNamespace: "default"
             mirroringK8S: false
@@ -301,76 +249,27 @@ Resources:
             certName: tls.crt
             keyName: tls.key
 
-          # nodeSelector: null
-
           aclBindingRuleSelector: "serviceaccount.name!=default"
 
           overrideAuthMethodName: ""
-          # aclInjectToken:
-            # secretName: null
-            # secretKey: null
-
-          # Requires Consul >= v1.5 and consul-k8s >= v0.8.1.
-          centralConfig:
-            # enabled controls whether central config is enabled on all servers and clients.
-            # See https://www.consul.io/docs/agent/options.html#enable_central_service_config.
-            # If changing this after installation, servers and clients must be restarted
-            # for the change to take effect.
-            enabled: true
-
-            # defaultProtocol allows you to specify a convenience default protocol if
-            # most of your services are of the same protocol type. The individual annotation
-            # on any given pod will override this value.
-            # Valid values are "http", "http2", "grpc" and "tcp".
-            defaultProtocol: |
-              null
-
-            # proxyDefaults is a raw json string that will be written as the value of
-            # the "config" key of the global proxy-defaults config entry.
-            # See: https://www.consul.io/docs/agent/config-entries/proxy-defaults.html
-            # NOTE: Changes to this value after the chart is first installed have *no*
-            # effect. In order to change the proxy-defaults config after installation,
-            # you must use the Consul API.
-            proxyDefaults: |
-              {}
 
         meshGateway:
           enabled: true
           globalMode: local
+          replicas: ${ConsulReplicas}
 
-          # Number of replicas for the Deployment.
-          replicas: !Ref "ConsulReplicas"
-
-          # What gets registered as WAN address for the gateway.
           wanAddress:
             source: "Service"
             port: 443
-
-            # If source is set to "Static" then this value will be used as the WAN
-            # address of the mesh gateways. This is useful if you've configured a
-            # DNS entry to point to your mesh gateways.
-            static: "" # {{>>>> For customer: "" }}
-
-          # The service option configures the Service that fronts the Gateway Deployment.
           service:
-            # Whether to create a Service or not.
             enabled: true
 
-            # Type of service, ex. LoadBalancer, ClusterIP.
-            type: ClusterIP # {{ TODO: >>> Andrew changes for AWS ELB }}
-            port: 443
-
-            annotations: |
-              null
-            # TODO: {{ >>> Andrew annotation changes for AWS ELB }}
-
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "250m"
-            limits:
-              memory: "256Mi"
-              cpu: "500m"
+      - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
+        IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'service.beta.kubernetes.io/aws-load-balancer-internal: "true"', "" ]
+        QuotedDomainName: !Sub "'${DomainName}'"
+        DNSSAN: !If [ CreateDns, !Sub 'serverAdditionalDNSSANs: ["${QuotedDomainName}"]', ""]
+        ExternalName: !If [ CreateDns, !Sub '"external-dns.alpha.kubernetes.io/hostname": "${DomainName}"', "" ]
+        TTL: '"external-dns.alpha.kubernetes.io/ttl": "30"'
 Outputs:
   ConsulReleaseName:
     Value: !Ref ConsulHelmChart

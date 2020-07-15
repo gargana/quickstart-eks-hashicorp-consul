@@ -86,7 +86,6 @@ Resources:
                   - iam:GetRole
                 Resource: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:role/Consul-${RandomId.GroupId}"
   ConsulRoleBinding:
-    DependsOn: ConsulServiceAccount
     Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
@@ -111,7 +110,6 @@ Resources:
         - ResourceName: !Sub "generate-gossip-secret-${RandomId.GroupId}"
           NameSpace: !Ref KubernetesNameSpace
   ConsulServiceAccount:
-    DependsOn: ConsulIAMRole
     Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
@@ -173,7 +171,6 @@ Resources:
           NameSpace: !Ref "KubernetesNameSpace"
           S3ScriptURL: !Ref "GossipScriptURL"
   ConsulRole:
-    DependsOn: ConsulServiceAccount
     Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
@@ -200,7 +197,6 @@ Resources:
         NameSpace: !Ref "KubernetesNameSpace"
         S3ScriptURL: !Ref "GossipScriptURL"
   ConsulCaCertSecret:
-    DependsOn: ConsulServiceAccount
     Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
@@ -236,7 +232,6 @@ Resources:
           password: cGxhY2Vob2xkZXIK
       - ResourceName: "consul-ca-key"
   ConsulGossipSecret:
-    DependsOn: ConsulServiceAccount
     Type: "Custom::KubeManifest"
     Version: '1.0'
     Properties:
