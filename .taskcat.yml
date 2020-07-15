@@ -24,8 +24,10 @@ project:
   - us-west-2
   parameters:
     ClusterName: override
-    ChartURI: override
+    ConsulReplicas: override
     LoadBalancerType: override
+    DomainName: override
+    HostedZoneId: override
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: us-west-2
     QSS3KeyPrefix: quickstart-eks-hashicorp-consul/
