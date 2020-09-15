@@ -3,3 +3,6 @@
 	url = git@github.com:aws-quickstart/quickstart-aws-acm-certificate.git
 [submodule "quickstart-aws-acm-certificate"]
 	branch = master
+[submodule "docs/boilerplate"]
+	path = docs/boilerplate
+	url = https://github.com/aws-quickstart/quickstart-documentation-base-common.git
