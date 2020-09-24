@@ -9,9 +9,10 @@ Parameters:
     Description: Amazon EKS Cluster
   ConsulVersion:
     Type: String
-    Default: "1.7.2"
+    Default: "1.8.2"
     AllowedValues: 
     - "1.7.2"
+    - "1.8.2"
   ConsulReplicas:
     Type: String
     Default: 3
@@ -24,29 +25,30 @@ Parameters:
     Default: "default"
   HelmDeploymentName:
     Type: String
-    Default: "andrewconsul"
-  OIDCProvider:
-    Type: String
-    Description: Amazon EKS cluster OIDC provider. (Without the protocol e.g. oidc.eks.us-east-1.amazonaws.com/id/SADFASFFASFXCCVXCVSDFSDF)
+    Default: "andrewconsul1"
   LoadBalancerType:
     Type: String
     Default: "Internal"
-    Description: Specify if the load balancer for HashiCorp Vault is internal or external.
+    Description: Specify if the load balancer for HashiCorp Consul is internal or external.
     AllowedValues:
     - "Internal"
     - "External"
   DomainName:
     Type: String
-    Description: Fully qualified domain name for the HashiCorp Vault load balancer.
+    Description: Fully qualified domain name for the HashiCorp Consul load balancer.
       If you don't provide a value for ACMSSLCertificateArn, use the HostedZoneID.
     MaxLength: 128
     Default: ""
   HostedZoneID:
     Type: String
-    Description: Route 53-hosted zone ID of the domain name. If you don't provide an ACMSSLCertificateArn value, the Quick Start creates the ACM certificate for you using HostedZoneID in conjunction with DomainName.
+    Description: Route 53-hosted zone ID of the domain name. If you don't provide an
+      ACMSSLCertificateArn value, the Quick Start creates the ACM certificate for you using
+      HostedZoneID in conjunction with DomainName.
     Default: ""
   ACMSSLCertificateArn:
-    Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you don't provide values for DomainName and HostedZoneID, provide a value for ACMSSLCertificateArn.
+    Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you
+      don't provide values for DomainName and HostedZoneID, provide a value for
+      ACMSSLCertificateArn.
     Type: String
     Default: ""
   QSS3BucketName:
@@ -61,25 +63,42 @@ Parameters:
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
-  CustomDns: !Not [!Equals [!Ref DomainName, '']]
-  HostedZoneExists: !Not [!Equals [!Ref HostedZoneID, '']]
+  CustomDns: !Not [!Equals [!Ref DomainName, ""]]
+  HostedZoneExists: !Not [!Equals [!Ref HostedZoneID, ""]]
   CreateDns: !And
     - !Not
       - !Equals
         - !Ref 'HostedZoneID'
-        - ''
+        - ""
     - !Not
       - !Equals
         - !Ref 'DomainName'
-        - ''
+        - ""
 Resources:
+  ConsulNameSpace:
+    Type: "AWSQS::Kubernetes::Resource"
+    Properties:
+      ClusterName: !Ref ClusterName
+      Manifest: !Sub
+        - |
+          kind: Namespace
+          apiVersion: v1
+          metadata:
+            name: ${Namespace}
+        - Namespace: !Ref KubernetesNameSpace
   PreworkStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: ConsulNameSpace
     Properties:
       Parameters:
         ClusterName: !Ref ClusterName
-        KubernetesNameSpace: default
-        OIDCProvider: !Ref OIDCProvider
+        KubernetesNameSpace: !Ref KubernetesNameSpace
+        ConsulVersion: !Ref ConsulVersion
+        OIDCProvider: !Sub
+          - "${OIDCProvider1}/${OIDCProvider2}/${OIDCProvider3}"
+          - OIDCProvider1: !Select [ 2, !Split [ "/", !Ref GetOIDCProvider ] ]
+            OIDCProvider2: !Select [ 3, !Split [ "/", !Ref GetOIDCProvider ] ]
+            OIDCProvider3: !Select [ 4, !Split [ "/", !Ref GetOIDCProvider ] ]
         GossipScriptURL: !Sub
         - s3://${S3Bucket}/${QSS3KeyPrefix}scripts/generate_gossip_secrets.sh
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -93,40 +112,35 @@ Resources:
       cfn-lint:
         config:
           ignore_checks:
-          - W9196
-          - W9197
-          - W9198
-          - W9199
+            - W9196
+            - W9197
+            - W9198
+            - W9199
     Type: AWS::CloudFormation::Stack
     Condition: CreateDns
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/
         DomainName: !Ref DomainName
         HostedZoneID: !Ref HostedZoneID
-#  ELBDNSRecord:
-#    Condition: CreateDns
-#    Type: AWS::Route53::RecordSet
-#    Properties:
-#      Type: A
-#      Name: !Ref "DomainName"
-#      AliasTarget:
-#        HostedZoneId: !GetAtt "ConsulLoadBalancer.CanonicalHostedZoneNameID"
-#        DNSName: !GetAtt "GetELBDetail.name"
-#      HostedZoneId: !Ref "HostedZoneID"
   #Custom resource to fetch LoadBalancer Cannonical DNS name
+  GetOIDCProvider:
+    Type: Custom::GetOIDCProvider
+    Properties:
+      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
+      AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.identity.oidc.{issuer:issuer}'"
+      IdField: 'issuer'
   GetELBDetail:
     DependsOn: ConsulHelmChart
-    Type: "Custom::GetELBDetail"
+    Type: AWSQS::Kubernetes::Get
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeGet-${ClusterName}"
       ClusterName: !Ref "ClusterName"
       Name: !Sub "service/${HelmDeploymentName}-ui"
       Namespace: !Ref "KubernetesNameSpace"
@@ -134,9 +148,8 @@ Resources:
   # Fetch the Key for the Kubernetes Secret Containing the CA Cert
   KubeGetCaCertSecretKey:
     DependsOn: PreworkStack
-    Type: "Custom::KubeGetCaKeySecretKey"
+    Type: AWSQS::Kubernetes::Get
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeGet-${ClusterName}"
       ClusterName: !Ref "ClusterName"
       Name: "secret/consul-ca-cert"
       Namespace: !Ref "KubernetesNameSpace"
@@ -144,25 +157,40 @@ Resources:
   # Fetch the Key for the Kubernetes Secret Containing the CA Key
   KubeGetCaKeySecretKey:
     DependsOn: PreworkStack
-    Type: "Custom::KubeGetCaCertSecretKey"
+    Type: AWSQS::Kubernetes::Get
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeGet-${ClusterName}"
       ClusterName: !Ref "ClusterName"
       Name: "secret/consul-ca-key"
       Namespace: !Ref "KubernetesNameSpace"
       JsonPath: "{.data.tls.key}"
+  GetELBHostedZone:
+    Type: Custom::GetELBHostedZone
+    Properties:
+      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
+      AwsCliCommand: !Sub
+        - "elb describe-load-balancers --load-balancer-names ${elbname} --query 'LoadBalancerDescriptions[0].{HostedZoneId:CanonicalHostedZoneNameID}'"
+        - elbname: !Select [ 0, !Split ["-", !Sub "${GetELBDetail.Response}" ] ]
+      IdField: 'HostedZoneId'
+  ELBDNSRecord:
+    Condition: CreateDns
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Type: A
+      Name: !Ref "DomainName"
+      AliasTarget:
+        HostedZoneId: !Ref "GetELBHostedZone"
+        DNSName: !Sub "${GetELBDetail.Response}"
+      HostedZoneId: !Ref "HostedZoneID"
   ConsulHelmChart:
     Type: "AWSQS::Kubernetes::Helm"
     Properties:
       ClusterID: !Ref ClusterName
       Repository: https://helm.releases.hashicorp.com
       Namespace: !Ref KubernetesNameSpace
-      Name: !Ref HelmDeploymentName
       Chart: hashicorp/consul
       ValueYaml: !Sub
       - |
         global:
-          name: "${HelmDeploymentName}"
           datacenter: "${AWS::Region}"
 
           gossipEncryption:
@@ -210,11 +238,11 @@ Resources:
             type: "LoadBalancer"
             annotations: |
               service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${SSLCertificate}
-              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
               service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
               ${IsInternalLoadBalancer}
-              ${ExternalName}
               ${TTL}
+              ${ExternalName}
         syncCatalog:
           enabled: true
           default: true
@@ -266,16 +294,17 @@ Resources:
 
       - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
         IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'service.beta.kubernetes.io/aws-load-balancer-internal: "true"', "" ]
-        QuotedDomainName: !Sub "'${DomainName}'"
-        DNSSAN: !If [ CreateDns, !Sub 'serverAdditionalDNSSANs: ["${QuotedDomainName}"]', ""]
+        DNSSAN: !If [ CreateDns, !Sub "serverAdditionalDNSSANs: ['${DomainName}']", ""]
         ExternalName: !If [ CreateDns, !Sub '"external-dns.alpha.kubernetes.io/hostname": "${DomainName}"', "" ]
+        NameSpace: !Ref KubernetesNameSpace
         TTL: '"external-dns.alpha.kubernetes.io/ttl": "30"'
 Outputs:
   ConsulReleaseName:
     Value: !Ref ConsulHelmChart
     Description: "Helm release name of Consul deployment."
   ELBUrl:
-    Value: !Ref GetELBDetail
+    Value:
+      !Sub
+      - "https://${DNSAddress}/"
+      - DNSAddress: !If [ CustomDns, !Ref DomainName, !Sub "${GetELBDetail.Response}" ]
     Description: "Consul UI URL"
-
-
