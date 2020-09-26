@@ -29,10 +29,9 @@ project:
     DomainName: override
     HostedZoneId: override
     QSS3BucketName: $[taskcat_autobucket]
-    QSS3BucketRegion: us-west-2
+    QSS3BucketRegion: $[taskcat_current_region]
     QSS3KeyPrefix: quickstart-eks-hashicorp-consul/
-    OIDCProvider: override
 tests:
   single-region:
     regions:
-     - us-west-2
+     - eu-west-1

@@ -14,6 +14,9 @@ Parameters:
   OIDCProvider:
     Type: String
     Description: Amazon EKS cluster OIDC provider. (Without the protocol e.g. oidc.eks.us-east-1.amazonaws.com/id/SADFASFFASFXCCVXCVSDFSDF)
+  ConsulVersion:
+    Type: String
+    Description: Amazon EKS cluster OIDC provider. (Without the protocol e.g. oidc.eks.us-east-1.amazonaws.com/id/SADFASFFASFXCCVXCVSDFSDF)
   GossipScriptURL:
     Type: String
     Description: Script to generate
@@ -86,11 +89,10 @@ Resources:
                   - iam:GetRole
                 Resource: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:role/Consul-${RandomId.GroupId}"
   ConsulRoleBinding:
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
         - |
           apiVersion: rbac.authorization.k8s.io/v1
@@ -110,11 +112,10 @@ Resources:
         - ResourceName: !Sub "generate-gossip-secret-${RandomId.GroupId}"
           NameSpace: !Ref KubernetesNameSpace
   ConsulServiceAccount:
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
         - |
           apiVersion: v1
@@ -131,11 +132,10 @@ Resources:
           RoleName: !Ref "ConsulIAMRole"
   GenerateGossipSecret:
     DependsOn: [ ConsulIAMRole, ConsulRole, ConsulServiceAccount, ConsulRoleBinding ]
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
         - |
           apiVersion: batch/v1
@@ -155,6 +155,8 @@ Resources:
                     sleep 15;
                     yum install -y awscli;
                     export AWS_REGION=${AWS::Region};
+                    export NS=${NameSpace}
+                    export VERSION=${Version}
                     aws sts get-caller-identity;
                     aws s3 cp ${!S3_SCRIPT_URL} ./script.sh &&
                     chmod +x ./script.sh &&
@@ -170,12 +172,12 @@ Resources:
         - ResourceName: !Sub "generate-gossip-secret-${RandomId.GroupId}"
           NameSpace: !Ref "KubernetesNameSpace"
           S3ScriptURL: !Ref "GossipScriptURL"
+          Version: !Ref "ConsulVersion"
   ConsulRole:
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
       - |
         apiVersion: rbac.authorization.k8s.io/v1
@@ -197,11 +199,10 @@ Resources:
         NameSpace: !Ref "KubernetesNameSpace"
         S3ScriptURL: !Ref "GossipScriptURL"
   ConsulCaCertSecret:
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
       - |
         apiVersion: v1
@@ -215,11 +216,10 @@ Resources:
       - ResourceName: "consul-ca-cert"
   ConsulCaKeySecret:
     DependsOn: ConsulServiceAccount
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
       - |
         apiVersion: v1
@@ -232,11 +232,10 @@ Resources:
           password: cGxhY2Vob2xkZXIK
       - ResourceName: "consul-ca-key"
   ConsulGossipSecret:
-    Type: "Custom::KubeManifest"
-    Version: '1.0'
+    Type: AWSQS::Kubernetes::Resource
     Properties:
-      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:EKS-QuickStart-KubeManifest-${ClusterName}"
       ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
       Manifest: !Sub
       - |
         apiVersion: v1
