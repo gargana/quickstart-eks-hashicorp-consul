@@ -153,10 +153,10 @@ Resources:
                   args:
                   - >
                     sleep 15;
-                    yum install -y awscli;
+                    yum install -y awscli 2>&1 > /dev/null;
                     export AWS_REGION=${AWS::Region};
-                    export NS=${NameSpace}
-                    export VERSION=${Version}
+                    export NS=${NameSpace};
+                    export VERSION=${Version};
                     aws sts get-caller-identity;
                     aws s3 cp ${!S3_SCRIPT_URL} ./script.sh &&
                     chmod +x ./script.sh &&
