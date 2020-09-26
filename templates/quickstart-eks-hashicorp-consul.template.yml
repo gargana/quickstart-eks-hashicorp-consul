@@ -15,11 +15,11 @@ Parameters:
     - "1.8.2"
   ConsulReplicas:
     Type: String
-    Default: 3
+    Default: "3"
     AllowedValues:
-    - 3
-    - 5
-    - 7
+    - "3"
+    - "5"
+    - "7"
   KubernetesNameSpace:
     Type: String
     Default: "consulqs"
