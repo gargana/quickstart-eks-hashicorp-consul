@@ -23,9 +23,6 @@ Parameters:
   KubernetesNameSpace:
     Type: String
     Default: "consulqs"
-  HelmDeploymentName:
-    Type: String
-    Default: "andrewconsul1"
   LoadBalancerType:
     Type: String
     Default: "Internal"
@@ -142,7 +139,7 @@ Resources:
     Type: AWSQS::Kubernetes::Get
     Properties:
       ClusterName: !Ref "ClusterName"
-      Name: !Sub "service/${HelmDeploymentName}-ui"
+      Name: !Sub "service/${ConsulHelmChart.Name}-consul-ui"
       Namespace: !Ref "KubernetesNameSpace"
       JsonPath: "{.status.loadBalancer.ingress[0].hostname}"
   # Fetch the Key for the Kubernetes Secret Containing the CA Cert
@@ -302,7 +299,7 @@ Resources:
         TTL: '"external-dns.alpha.kubernetes.io/ttl": "30"'
 Outputs:
   ConsulReleaseName:
-    Value: !Ref ConsulHelmChart
+    Value: !GetAtt ConsulHelmChart.Name
     Description: "Helm release name of Consul deployment."
   ELBUrl:
     Value:

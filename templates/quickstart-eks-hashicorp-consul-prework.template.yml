@@ -148,7 +148,7 @@ Resources:
               spec:
                 containers:
                 - name: ${ResourceName}
-                  image: amazonlinux
+                  image: amazonlinux:2
                   command: ["/bin/bash","-c"]
                   args:
                   - >
