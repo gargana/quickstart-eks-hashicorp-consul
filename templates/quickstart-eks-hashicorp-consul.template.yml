@@ -135,11 +135,11 @@ Resources:
       AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.identity.oidc.{issuer:issuer}'"
       IdField: 'issuer'
   GetELBDetail:
-    DependsOn: ConsulHelmChart
+    DependsOn: ConsulUiIngress
     Type: AWSQS::Kubernetes::Get
     Properties:
       ClusterName: !Ref "ClusterName"
-      Name: !Sub "service/${ConsulHelmChart.Name}-consul-ui"
+      Name: "ingress/consul-ui"
       Namespace: !Ref "KubernetesNameSpace"
       JsonPath: "{.status.loadBalancer.ingress[0].hostname}"
   # Fetch the Key for the Kubernetes Secret Containing the CA Cert
@@ -165,9 +165,7 @@ Resources:
     DependsOn: ConsulHelmChart
     Properties:
       ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
-      AwsCliCommand: !Sub
-        - "elb describe-load-balancers --load-balancer-names ${elbname} --query 'LoadBalancerDescriptions[0].{HostedZoneId:CanonicalHostedZoneNameID}'"
-        - elbname: !Select [ 0, !Split ["-", !Sub "${GetELBDetail.Response}" ] ]
+      AwsCliCommand: !Sub "elbv2 describe-load-balancers  --query 'LoadBalancers[?DNSName==`${GetELBDetail.Response}`]| [0].{HostedZoneId:CanonicalHostedZoneId}'"
       IdField: 'HostedZoneId'
   ELBDNSRecord:
     Condition: CreateDns
@@ -179,6 +177,39 @@ Resources:
         HostedZoneId: !Ref "GetELBHostedZone"
         DNSName: !Sub "${GetELBDetail.Response}"
       HostedZoneId: !Ref "HostedZoneID"
+  ConsulUiIngress:
+    Type: "AWSQS::Kubernetes::Resource"
+    Properties:
+      ClusterName: !Ref ClusterName
+      Namespace: !Ref KubernetesNameSpace
+      Manifest: !Sub
+        - |
+          apiVersion: extensions/v1beta1
+          kind: Ingress
+          metadata:
+              name: consul-ui
+              namespace: ${KubernetesNameSpace}
+              labels:
+                app: consul
+                component: server
+                release: ${ConsulHelmChart.Name}
+              annotations:
+                  kubernetes.io/ingress.class: alb
+                  alb.ingress.kubernetes.io/backend-protocol: HTTPS
+                  alb.ingress.kubernetes.io/certificate-arn: ${SSLCertificate}
+                  alb.ingress.kubernetes.io/healthcheck-path: /ui/
+                  alb.ingress.kubernetes.io/scheme: ${IsInternalLoadBalancer}
+                  alb.ingress.kubernetes.io/target-type: instance
+          spec:
+              rules:
+              - http:
+                  paths:
+                  - path: /*
+                    backend:
+                      serviceName: "${ConsulHelmChart.Name}-consul-ui"
+                      servicePort: 443
+        - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
+          IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'internal', "internet-facing" ]
   ConsulHelmChart:
     Type: "AWSQS::Kubernetes::Helm"
     DependsOn: PreworkStack
@@ -189,6 +220,7 @@ Resources:
       Chart: hashicorp/consul
       ValueYaml: !Sub
       - |
+
         global:
           datacenter: "${AWS::Region}"
 
@@ -234,14 +266,7 @@ Resources:
           enabled: "true"
           service:
             enabled: true
-            type: "LoadBalancer"
-            annotations: |
-              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${SSLCertificate}
-              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
-              service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-              ${IsInternalLoadBalancer}
-              ${TTL}
-              ${ExternalName}
+            type: NodePort
         syncCatalog:
           enabled: true
           default: true
@@ -264,12 +289,7 @@ Resources:
         connectInject:
           enabled: true
           image: hashicorp/consul-k8s # image for consul-k8s that contains the injector
-          default: true # true will inject by default, otherwise requires annotation
-          imageEnvoy: envoyproxy/envoy-alpine
-          consulNamespaces:
-            consulDestinationNamespace: "default"
-            mirroringK8S: false
-            mirroringK8SPrefix: ""
+          default: false # true will inject by default, otherwise requires annotation
           certs:
             # secretName: null
             caBundle: ""
