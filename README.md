@@ -4,26 +4,35 @@
 
 ---
 
-> This Quick Start was created by [Snyk](https://hashicorp.com) in collaboration with 
+> This Quick Start was created by [HashiCorp](https://hashicorp.com) in collaboration with 
 > Amazon Web Services (AWS). [AWS Quick Starts](https://aws.amazon.com) are automated 
 > reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best 
 > practices. 
 
 ## Overview
-Snyk controller for Amazon EKS enables you to import and test your running EKS workloads and identify vulnerabilities in 
-their associated images and configurations that might make those workloads less secure. Once imported, Snyk continues 
-to monitor those workloads, identifying additional security issues as new images are deployed and the workload 
-configuration changes.
+This Quick Start helps you to deploy HashiCorp Consul servers and clients via Consul Helm chart on Amazon Elastic
+ Kubernetes Service (Amazon EKS). HashiCorp Consul is a tool that provides the foundation of cloud networking automation
+ using a central registry for service-based networking. Consul's core use cases include:
+* Service registry & health monitoring, to provide a real-time directory of all services with their health status;
+* Network middleware automation, with service discovery for dynamic reconfiguration as services scale up, down or move;
+* Zero trust network with service mesh, to secure service-to-service traffic with identity-based security policies and
+ encrypted traffic with Mutual-TLS.
 
-This Quick Start reference deployment guide provides step-by-step instructions for deploying Snyk on Amazon EKS. 
+HashiCorp Consul is designed for service networking professionals and application developers who want to securely connect
+services, monitor, and automate them. It's deployed via [Consul Helm chart](https://github.com/hashicorp/consul-helm), 
+which contains all of the resource definitions to install and configure Consul inside of a Kubernetes cluster.
+Each stack in this deployment takes approximately 20 minutes to create.
+For more information and step-by-step deployment instructions, see the [deployment guide](<https link to deployment guide>).
+
+This Quick Start reference deployment guide provides step-by-step instructions for deploying HashiCorp Consul on Amazon EKS. 
 
 > Please know that we may share who uses AWS Quick Starts with the AWS Partner Network (APN) Partner that collaborated 
 > with AWS on the content of the Quick Start.
 
 ## Target Audience 
 
-Developers, DevOps, Security teams, or any role within an organization building, deploying and maintaining applications 
-on Amazon EKS.
+Service networking professionals and application developers who want to securely connect
+services, monitor, and automate them on Amazon EKS.
 
 ## Architecture
 
@@ -31,13 +40,24 @@ Deploying this Quick Start with default parameters into an existing Amazon EKS c
 For a diagram of the new VPC and new EKS cluster deployment options, see the 
 [Amazon EKS Quick Start documentation](https://docs.aws.amazon.com/quickstart/latest/amazon-eks-architecture/architecture.html).
  
-![Snyk architecture diagram](docs/images/architecture.png)
-*Figure 1: Quick Start architecture for Snyk on Amazon EKS*
+![Consul architecture diagram](docs/images/architecture_eks_consul.png)
+*Figure 1: Quick Start architecture for HashiCorp Consul on Amazon EKS*
 
 As shown in Figure 1, the Quick Start sets up the following:
-* Kubernetes namespace for Snyk
-* Kubernetes secret containing Skyk integration ID and docker config json.
-* Snyk monitor pod
+* In AWS:
+  * Application Load Balancer.
+  * Amazon Certificate Manager(ACM) certificate.
+* In Kubernetes:
+  * namespace for Consul.
+  * Kubernetes secret containing gossip Consul integration ID and docker config json.
+  * Consul services:
+    * mesh-gateway
+    * consul-server
+    * consul-dns
+    * consul-ui
+  * Dedicated Consul server nodes.
+  * ALB ingress controller.
+  * Consul connect-injector.
 
 ## Cost and licenses
 
@@ -52,9 +72,6 @@ service you will use. Prices are subject to change.
 > Simple Storage Service (Amazon S3) bucket in your account. It provides cost estimates based on usage throughout each 
 > month and finalizes the data at the end of the month. For more information about the report, see the AWS 
 > documentation.
-
-This Quick Start requires a license for Snyk, the license costs and the instructions to obtain a license are available 
-[here](https://aws.amazon.com/marketplace/pp/B085VGM85Q?qid=1590170928622&sr=0-1&ref_=srh_res_product_title).
 
 ## Planning the deployment
 
@@ -76,12 +93,12 @@ of the *Deployment steps* section of this document.
 ## Deployment options
 
 This Quick Start provides three deployment options:
-* Deploy Snyk into a new VPC (end-to-end deployment). This option builds a new AWS environment consisting of 
+* Deploy Consul into a new VPC (end-to-end deployment). This option builds a new AWS environment consisting of 
 the VPC, subnets, NAT gateways, security groups, bastion hosts, EKS cluster, a node group, and other infrastructure 
-components. It then deploys Snyk into this new EKS cluster.
-* Deploy Snyk into a new EKS cluster in an existing VPC. This option builds a new AWS EKS cluster, a node 
-group, and other infrastructure components into an existing VPC. It then deploys Snyk into this new EKS cluster.
-* Deploy Snyk into an existing EKS cluster. This option provisions Snyk in your existing AWS infrastructure.
+components. It then deploys Consul into this new EKS cluster.
+* Deploy Consul into a new EKS cluster in an existing VPC. This option builds a new AWS EKS cluster, a node 
+group, and other infrastructure components into an existing VPC. It then deploys Consul into this new EKS cluster.
+* Deploy Consul into an existing EKS cluster. This option provisions Consul in your existing AWS infrastructure.
 
 
 ## Deployment steps
@@ -114,13 +131,6 @@ the EKS Cluster console.
 10. Add the roles to the aws-auth config map in your cluster, specifying *system:masters* for the groups, by following 
 the steps in the [EKS documentation](). This allows the Quick Start to manage your cluster via AWS CloudFormation.
 
-### Step 3. Retrieve Snyk Kubernetes integration ID
-
-1. Now, log in to your Snyk account and navigate to Integrations.
-2. Search for and click Kubernetes.
-3. Click Connect from the page that loads, copy the Integration ID. The Snyk Integration ID is a UUID, similar to this 
-format: `abcd1234-abcd-1234-abcd-1234abcd1234`. Save it for use in the next step.
-
 ### Step 3. Launch the Quick Start
 
 > Note: You are responsible for the cost of the AWS services used while running this Quick Start reference deployment. 
@@ -130,9 +140,9 @@ format: `abcd1234-abcd-1234-abcd-1234abcd1234`. Save it for use in the next step
 1. Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. 
 For help with choosing an option, see deployment options earlier in this guide.
 
-| [![New VPC](docs/images/deploy1.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
+| [![New VPC](docs/images/deploy1.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
 | :---: | :---: | :---: |
-| [Deploy into a new VPC and new EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
+| [Deploy into a new VPC and new EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
 
 Each new cluster deployments takes about 2 hours to complete. Existing cluster deployments take around 10 minutes.
 
@@ -152,41 +162,16 @@ acknowledge that the template creates IAM resources and might require the abilit
 8. Monitor the status of the stack. When the status is CREATE_COMPLETE, the Snyk cluster is ready.
 
 ### Step 4. Test the deployment
-
-1. Configure kubectll command line utility to connect to your EKS cluster, as per the 
-[EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/managing-auth.html)
-2. Run `kubectl get namespaces` and verify that a namespace `snyk-monitor` displays with STATUS `Active`.
-3. Run `kubectl get pods --namespace snyk-monitor` and verify that a pod with the prefix `snyk-monitor` displays with 
-STATUS `Running`.
-4. From the Snyk console, verify that your cluster appears and you are able to add workloads as described in the 
-[Snyk documentation](https://support.snyk.io/hc/en-us/articles/360003947117#UUID-a0526554-0943-3363-6977-7a11f766ede2)
+TODO: 
 
 ### Parameter reference
+TODO: 
 
-In the following table, parameters are described for the existing EKS cluster option. For parameters in the other 
-deployment options see the EKS Quick Start documentation: 
-* [Parameters for deploying new VPC and new EKS cluster](https://docs.aws.amazon.com/quickstart/latest/amazon-eks-architecture/step-2.html#option-1-new-vpc)
-* [Parameters for deploying EKS cluster into an existing VPC](https://docs.aws.amazon.com/quickstart/latest/amazon-eks-architecture/step-2.html#option-2-existing-vpc)
-
-| Parameter label (name) | Default | Description |
-| --- | --- | --- |
-| EKS cluster name(KubeClusterName) | *Requires input* | Name of the EKS cluster to deploy snyk into. |
-| Snyk integration ID(SnykIntegrationId) | *Requires input* | Snyk kubernetes integration ID. Must be obtained from the Snyk console. For more information see *Step 3. Retrieve Snyk Kubernetes integration ID* in this guide. |
-| Namespace(Namespace) | snyk-monitor | Kubernetes namespace to deploy the Snyk controller into. |
-
-### Best practices for using Snyk on AWS
-The Snyk Kubernetes integration will monitor workloads and provide details on potential vulnerabilities in container 
-images as well as security configuration for your deployments. It is recommended that Kubernetes manifests adhere to 
-the workload configuration properties defined in the 
-[Snyk documentation](https://support.snyk.io/hc/en-us/articles/360003916178-Viewing-project-details-and-test-results)
+### Best practices for using Consul on AWS
+TODO: 
 
 ## Security
-Snyk will alert for common misconfigurations include not setting CPU/Memory limits for your application as well as 
-running containers as the root user. Another common misconfiguration is leaving the default file system mounted for the 
-container as writable. This may lead to a potential exposure for an attacker who compromises the container and writes 
-to the disk, which makes certain kinds of attacks easier. If your containers are stateless then you don’t need a writable 
-filesystem. Lastly, not defining capabilities. At a low-level, Linux capabilities control what different processes in 
-the container are allowed to do: from being able to write to the disk, to being able to communicate over the network.
+TODO: 
 
 ## FAQ
 **Q**. I encountered a CREATE_FAILED error when I launched the Quick Start. 
@@ -201,8 +186,8 @@ the stack’s state is retained and the instance is left running, so you can tro
 For general EKS troubleshooting steps see the 
 [EKS Quick Start documentation](https://docs.aws.amazon.com/quickstart/latest/amazon-eks-architecture/). 
 
-For Snyk specific troubleshooting see 
-[Snyk troubleshooting documentation](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview).
+For Consul specific troubleshooting see 
+[Consul troubleshooting documentation](https://learn.hashicorp.com/tutorials/consul/troubleshooting).
 
 For additional information, see Troubleshooting AWS CloudFormation on the AWS website. 
 
@@ -229,7 +214,7 @@ Start. If you’d like to submit code, please review the Quick Start Contributor
 
 ### Snyk documentation
 
-* [Snyk Kubernetes integration](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview)
+* [Consul Kubernetes integration](https://www.consul.io/docs/k8s)
 
 ### Other Quick Start reference deployments
 
