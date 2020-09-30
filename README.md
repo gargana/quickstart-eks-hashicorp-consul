@@ -140,9 +140,9 @@ the steps in the [EKS documentation](). This allows the Quick Start to manage yo
 1. Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. 
 For help with choosing an option, see deployment options earlier in this guide.
 
-| [![New VPC](docs/images/deploy1.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
+| [![New VPC](docs/images/deploy1.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
 | :---: | :---: | :---: |
-| [Deploy into a new VPC and new EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Snyk&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Snyk-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
+| [Deploy into a new VPC and new EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-snyk/templates/eks-snyk.template.yaml) |
 
 Each new cluster deployments takes about 2 hours to complete. Existing cluster deployments take around 10 minutes.
 
@@ -150,8 +150,7 @@ Each new cluster deployments takes about 2 hours to complete. Existing cluster d
 from list in the upper-right corner of the navigation bar.
 3. On the Create stack page, keep the default setting for the template URL, and then choose Next.
 4. On the Specify stack details page, change the stack name if needed. Review the parameters for the template, a 
-reference is provided in the *Parameters* section of this document. Enter the ID obtained in *Step 3* 
-into the parameter labelled `Snyk integration ID`. Provide values for the parameters that require 
+reference is provided in the *Parameters* section of this document. Provide values for the parameters that require 
 input. For all other parameters, review the default settings and customize them as necessary. When you finish reviewing 
 and customizing the parameters, choose Next.
 5. On the options page, you can specify tags (key-value pairs) for resources in your stack and set advanced options. 
@@ -159,7 +158,7 @@ When you’re done, choose Next.
 6. On the Review page, review and confirm the template settings. Under Capabilities, select the two check boxes to 
 acknowledge that the template creates IAM resources and might require the ability to automatically expand macros.
 7. Choose Create stack to deploy the stack.
-8. Monitor the status of the stack. When the status is CREATE_COMPLETE, the Snyk cluster is ready.
+8. Monitor the status of the stack. When the status is CREATE_COMPLETE, the Consul cluster is ready.
 
 ### Step 4. Test the deployment
 TODO: 
@@ -212,7 +211,7 @@ Start. If you’d like to submit code, please review the Quick Start Contributor
 * [IAM](https://docs.aws.amazon.com/iam/)
 * [Amazon VPC](https://docs.aws.amazon.com/vpc/)
 
-### Snyk documentation
+### Consul documentation
 
 * [Consul Kubernetes integration](https://www.consul.io/docs/k8s)
 
