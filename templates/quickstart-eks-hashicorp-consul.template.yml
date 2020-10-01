@@ -64,7 +64,26 @@ Metadata:
         default: Number of HashiCorp Consul server nodes
       HttpProxy:
         default: HTTP proxy
+Mappings:
+  Scaling:
+    small:
+      InstanceType: "m5.large"
+      VolumeSize: "25"
+    medium:
+      InstanceType: "m5.xlarge"
+      VolumeSize: "50"
+    large:
+      InstanceType: "m5.2xlarge"
+      VolumeSize: "50"
 Parameters:
+  ConsulDeploymentSize:
+    Type: String
+    Default: "small"
+    Description: Deployment size of dedicated HashiCorp Consul EKS nodes.
+    AllowedValues:
+      - "small"
+      - "medium"
+      - "large"
   ClusterName:
     Type: String
     Description: Amazon EKS Cluster
@@ -138,6 +157,12 @@ Parameters:
     Type: String
     Default: ""
     Description: "(Optional) HTTP(S) proxy configuration, if provided all Consul nodes and pod egress traffic will use this proxy. Example: http://10.101.0.100:3128/."
+  PrivateSubnet1ID:
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet2ID:
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet3ID:
+    Type: "AWS::EC2::Subnet::Id"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
@@ -164,6 +189,54 @@ Resources:
           metadata:
             name: ${Namespace}
         - Namespace: !Ref KubernetesNameSpace
+  GetClusterVPCID:
+    Type: Custom::GetClusterVPCID
+    Properties:
+      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
+      AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.resourcesVpcConfig.{vpcId:vpcId}'"
+      IdField: 'vpcId'
+  GetClusterSecurityGroupId:
+    Type: Custom::GetClusterSecurityGroupId
+    Properties:
+      ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
+      AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.resourcesVpcConfig.{clusterSecurityGroupId:clusterSecurityGroupId}'"
+      IdField: 'clusterSecurityGroupId'
+  # DO NOT USE this is created for a random id only
+  Random:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: DoNotUse
+  ConsulNodeGroup:
+    # TODO: Nodegroup create with Labels only for Consul other stuff is dissallowed
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks-nodegroup/templates/amazon-eks-nodegroup.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        HttpProxy: !Ref HttpProxy
+        KeyPairName: !Ref 'KeyPairName'
+        # TODO: Get from existing VPC rather than have as paramters
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        VPCID: !Ref GetClusterVPCID
+        NodeInstanceType: !FindInMap [ "Scaling", !Ref ConsulDeploymentSize, "InstanceType" ]
+        NumberOfNodes: !Ref ConsulReplicas
+        MaxNumberOfNodes: !Ref ConsulReplicas
+        NodeGroupName: !Sub "Consul-${Random.GroupId}"
+        NodeVolumeSize: !FindInMap [ "Scaling", !Ref ConsulDeploymentSize, "VolumeSize" ]
+        ManagedNodeGroup: "yes"
+        EKSControlPlane: !Ref ClusterName
+        ControlPlaneSecurityGroup: !Ref GetClusterSecurityGroupId
+        NodeInstanceProfile: !Ref NodeInstanceProfile
+        NodeInstanceRoleName: !Ref NodeInstanceRole
+        NodeInstanceRoleArn: !GetAtt NodeInstanceRole.Arn
+        KubernetesVersion: !Ref GetClusterKubernetesVersion
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub "${QSS3KeyPrefix}submodules/quickstart-amazon-eks-nodegroup/"
+        QSS3BucketRegion: !Ref QSS3BucketRegion
   PreworkStack:
     Type: AWS::CloudFormation::Stack
     DependsOn: ConsulNameSpace
