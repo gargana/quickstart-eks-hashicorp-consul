@@ -1,4 +1,4 @@
-# Hashicorp consul on Amazon EKS
+# HashiCorp Consul on Amazon EKS
 
 **DEVELOPER PREVIEW** - This is a preview release and not intended for production use.
 
