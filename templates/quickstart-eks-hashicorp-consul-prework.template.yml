@@ -153,7 +153,8 @@ Resources:
                   args:
                   - >
                     sleep 15;
-                    yum install -y awscli 2>&1 > /dev/null;
+                    yum update -y;
+                    yum install -y awscli;
                     export AWS_REGION=${AWS::Region};
                     export NS=${NameSpace};
                     export VERSION=${Version};

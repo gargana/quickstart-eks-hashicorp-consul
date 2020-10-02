@@ -133,6 +133,16 @@ Parameters:
       ACMSSLCertificateArn.
     Type: String
     Default: ""
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
   QSS3KeyPrefix:
     AllowedPattern: ^[0-9a-zA-Z-/.]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
@@ -195,12 +205,12 @@ Resources:
       ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
       AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.resourcesVpcConfig.{vpcId:vpcId}'"
       IdField: 'vpcId'
-  GetClusterSecurityGroupId:
-    Type: Custom::GetClusterSecurityGroupId
+  GetClusterVPCCIDR:
+    Type: Custom::GetClusterVPCCIDR
     Properties:
       ServiceToken: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader"
-      AwsCliCommand: !Sub "eks describe-cluster --name ${ClusterName} --query 'cluster.resourcesVpcConfig.{clusterSecurityGroupId:clusterSecurityGroupId}'"
-      IdField: 'clusterSecurityGroupId'
+      AwsCliCommand: !Sub "ec2 describe-vpcs --vpc-ids ${GetClusterVPCID} --query 'Vpcs[0].CidrBlockAssociationSet[0].{CidrBlock:CidrBlock}'"
+      IdField: 'CidrBlock'
   # DO NOT USE this is created for a random id only
   Random:
     Type: AWS::EC2::SecurityGroup
@@ -217,26 +227,18 @@ Resources:
       Parameters:
         HttpProxy: !Ref HttpProxy
         KeyPairName: !Ref 'KeyPairName'
-        # TODO: Get from existing VPC rather than have as paramters
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        PrivateSubnet3ID: !Ref PrivateSubnet3ID
-        VPCID: !Ref GetClusterVPCID
+        # TODO: Get from existing VPC rather than have as parameters
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+        Subnet3ID: !Ref PrivateSubnet3ID
         NodeInstanceType: !FindInMap [ "Scaling", !Ref ConsulDeploymentSize, "InstanceType" ]
+        # TODO: Investigate
+        # NodeTaints: "app=consul:NoSchedule"
         NumberOfNodes: !Ref ConsulReplicas
         MaxNumberOfNodes: !Ref ConsulReplicas
         NodeGroupName: !Sub "Consul-${Random.GroupId}"
         NodeVolumeSize: !FindInMap [ "Scaling", !Ref ConsulDeploymentSize, "VolumeSize" ]
-        ManagedNodeGroup: "yes"
-        EKSControlPlane: !Ref ClusterName
-        ControlPlaneSecurityGroup: !Ref GetClusterSecurityGroupId
-        NodeInstanceProfile: !Ref NodeInstanceProfile
-        NodeInstanceRoleName: !Ref NodeInstanceRole
-        NodeInstanceRoleArn: !GetAtt NodeInstanceRole.Arn
-        KubernetesVersion: !Ref GetClusterKubernetesVersion
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Sub "${QSS3KeyPrefix}submodules/quickstart-amazon-eks-nodegroup/"
-        QSS3BucketRegion: !Ref QSS3BucketRegion
+        EKSClusterName: !Ref ClusterName
   PreworkStack:
     Type: AWS::CloudFormation::Stack
     DependsOn: ConsulNameSpace
@@ -357,7 +359,6 @@ Resources:
       Chart: hashicorp/consul
       ValueYaml: !Sub
       - |
-
         global:
           datacenter: "${AWS::Region}"
 
@@ -385,6 +386,7 @@ Resources:
           federation:
             enabled: true
             createFederationSecret: true
+
         server:
           replicas: ${ConsulReplicas}
           bootstrapExpect: ${ConsulReplicas}
@@ -392,6 +394,20 @@ Resources:
             {
               "log_level": "WARN"
             }
+
+          affinity: |
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: {{ template "consul.name" . }}
+                      release: "{{ .Release.Name }}"
+                      component: server
+                  topologyKey: kubernetes.io/hostname
+
+          nodeSelector: |
+            ${NodeSelector}
+
         client:
           enabled: true
           grpc: true
@@ -399,11 +415,13 @@ Resources:
             {
               "log_level": "WARN"
             }
+
         ui:
           enabled: "true"
           service:
             enabled: true
             type: NodePort
+
         syncCatalog:
           enabled: true
           default: true
@@ -420,6 +438,8 @@ Resources:
           consulPrefix: consul
           k8sTag: k8s
           syncClusterIPServices: true
+          nodeSelector: |
+            ${NodeSelector}
 
           logLevel: warn
 
@@ -446,13 +466,15 @@ Resources:
             port: 443
           service:
             enabled: true
-
+          nodeSelector: |
+            ${NodeSelector}
       - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
         IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'service.beta.kubernetes.io/aws-load-balancer-internal: "true"', "" ]
         DNSSAN: !If [ CreateDns, !Sub "serverAdditionalDNSSANs: ['${DomainName}']", ""]
         ExternalName: !If [ CreateDns, !Sub '"external-dns.alpha.kubernetes.io/hostname": "${DomainName}"', "" ]
         NameSpace: !Ref KubernetesNameSpace
         TTL: '"external-dns.alpha.kubernetes.io/ttl": "30"'
+        NodeSelector: !Sub "eks.amazonaws.com/nodegroup: Consul-${Random.GroupId}"
 Outputs:
   ConsulReleaseName:
     Value: !GetAtt ConsulHelmChart.Name
