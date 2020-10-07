@@ -116,8 +116,8 @@ For details, see Planning the deployment earlier in this guide.
 > step 3.
 
 1. Sign in to your AWS account, and launch the 
-[cluster preparation template](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/template?stackName=Amazon-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-cluster.template.yaml).
-2.	The template is launched in the Ohio (us-east-2) AWS Region by default. To change the Region choose another Region 
+[cluster preparation template](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-cluster.template.yaml).
+2.	The template is launched in the N. Virginia (us-east-1) AWS Region by default. To change the Region choose another Region 
 from list in the upper-right corner of the navigation bar.
 3. On the Create stack page, keep the default setting for the template URL, and then choose Next.
 4. On the Specify stack details page, change the stack name if needed. Enter the name of the EKS cluster you would like 
@@ -140,9 +140,9 @@ the steps in the [EKS documentation](). This allows the Quick Start to manage yo
 1. Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. 
 For help with choosing an option, see deployment options earlier in this guide.
 
-| [![New VPC](docs/images/deploy1.png)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-hashicorp-consul/templates/quickstart-eks-hashicorp-consul.template.yml) |
+| [![New VPC](docs/images/deploy1.png)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-entrypoint-new-vpc.template.yaml) | [![Existing VPC](docs/images/deploy2.png) ](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml)    | [![Existingcluster](docs/images/deploy3.png)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-hashicorp-consul/templates/quickstart-eks-hashicorp-consul.template.yml) |
 | :---: | :---: | :---: |
-| [Deploy into a new VPC and new EKS cluster](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-master-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-hashicorp-consul/templates/quickstart-eks-hashicorp-consul.template.yml) |
+| [Deploy into a new VPC and new EKS cluster](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-entrypoint-new-vpc.template.yaml) | [Deploy into a new EKS cluster in an existing VPC](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Amazon-EKS-with-Consul&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml) | [Deploy into an existing EKS cluster](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=Consul-EKS&templateURL=https://s3.amazonaws.com/aws-quickstart/quickstart-eks-hashicorp-consul/templates/quickstart-eks-hashicorp-consul.template.yml) |
 
 Each new cluster deployments takes about 2 hours to complete. Existing cluster deployments take around 10 minutes.
 
@@ -193,7 +193,7 @@ For additional information, see Troubleshooting AWS CloudFormation on the AWS we
 ## Send us feedback
 
 To post feedback, submit feature ideas, or report bugs, use the 
-[Issues](https://github.com/aws-quickstart/quickstart-eks-snyk/issues) section of the GitHub repository for this Quick 
+[Issues](https://github.com/aws-quickstart/quickstart-eks-hashicorp-consul/issues) section of the GitHub repository for this Quick 
 Start. If you’d like to submit code, please review the Quick Start Contributor’s Guide.
 
 ## Additional resources
