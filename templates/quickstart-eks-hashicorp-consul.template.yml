@@ -68,13 +68,16 @@ Mappings:
   Scaling:
     small:
       InstanceType: "m5.large"
-      VolumeSize: "25"
+      VolumeSize: "50"
     medium:
       InstanceType: "m5.xlarge"
       VolumeSize: "50"
     large:
       InstanceType: "m5.2xlarge"
-      VolumeSize: "50"
+      VolumeSize: "100"
+    extralarge:
+      InstanceType: "m5.4xlarge"
+      VolumeSize: "100"
 Parameters:
   ConsulDeploymentSize:
     Type: String
@@ -84,6 +87,7 @@ Parameters:
       - "small"
       - "medium"
       - "large"
+      - "extralarge"
   ClusterName:
     Type: String
     Description: Amazon EKS Cluster
@@ -93,10 +97,10 @@ Parameters:
       to securely connect to your instance after it launches.
   ConsulVersion:
     Type: String
-    Default: "1.8.2"
+    Default: "1.8.4"
     Description: Consul version.
     AllowedValues: 
-    - "1.8.2"
+    - "1.8.4"
   ConsulReplicas:
     Type: String
     Default: "3"
@@ -325,28 +329,28 @@ Resources:
           apiVersion: extensions/v1beta1
           kind: Ingress
           metadata:
-              name: consul-ui
-              namespace: ${KubernetesNameSpace}
-              labels:
-                app: consul
-                component: server
-                release: ${ConsulHelmChart.Name}
-              annotations:
-                  kubernetes.io/ingress.class: alb
-                  alb.ingress.kubernetes.io/backend-protocol: HTTPS
-                  alb.ingress.kubernetes.io/certificate-arn: ${SSLCertificate}
-                  alb.ingress.kubernetes.io/healthcheck-path: /ui/
-                  alb.ingress.kubernetes.io/scheme: ${IsInternalLoadBalancer}
-                  alb.ingress.kubernetes.io/target-type: instance
-                  alb.ingress.kubernetes.io/inbound-cidrs: ${RemoteAccessCIDR}
+            name: consul-ui
+            namespace: ${KubernetesNameSpace}
+            labels:
+              app: consul
+              component: server
+              release: ${ConsulHelmChart.Name}
+            annotations:
+              kubernetes.io/ingress.class: alb
+              alb.ingress.kubernetes.io/backend-protocol: HTTPS
+              alb.ingress.kubernetes.io/certificate-arn: ${SSLCertificate}
+              alb.ingress.kubernetes.io/healthcheck-path: /ui/
+              alb.ingress.kubernetes.io/scheme: ${IsInternalLoadBalancer}
+              alb.ingress.kubernetes.io/target-type: instance
+              alb.ingress.kubernetes.io/inbound-cidrs: ${RemoteAccessCIDR}
           spec:
-              rules:
-              - http:
-                  paths:
-                  - path: /*
-                    backend:
-                      serviceName: "${ConsulHelmChart.Name}-consul-ui"
-                      servicePort: 443
+            rules:
+            - http:
+              paths:
+              - path: /*
+                backend:
+                  serviceName: "${ConsulHelmChart.Name}-consul-ui"
+                  servicePort: 443
         - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
           IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'internal', "internet-facing" ]
   ConsulHelmChart:
