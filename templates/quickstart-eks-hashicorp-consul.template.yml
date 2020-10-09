@@ -346,11 +346,11 @@ Resources:
           spec:
             rules:
             - http:
-              paths:
-              - path: /*
-                backend:
-                  serviceName: "${ConsulHelmChart.Name}-consul-ui"
-                  servicePort: 443
+                paths:
+                - path: /*
+                  backend:
+                    serviceName: "${ConsulHelmChart.Name}-consul-ui"
+                    servicePort: 443
         - SSLCertificate: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref "ACMSSLCertificateArn" ]
           IsInternalLoadBalancer: !If [ InternalLoadBalancer , 'internal', "internet-facing" ]
   ConsulHelmChart:
