@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the HashiCorp Consul helm chart into a Kubernetes cluster (qp-1qmcrhdml)."
+Description: "Deploys the HashiCorp Consul helm chart into a an Amazon EKS cluster (qs-1r79drkob)."
 Metadata:
   QSLint:
     Exclusions: [W9002, W9003, W9004, W9006]

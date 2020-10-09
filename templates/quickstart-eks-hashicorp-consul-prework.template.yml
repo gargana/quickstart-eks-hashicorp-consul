@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the dependencies for HashiCorp Consul on EKS(qs-1qsgm69js)"
+Description: "Deploys dependencies for HashiCorp Consul on an Amazon EKS cluster (qs-1r79drkqt)"
 Metadata:
   QSLint:
     Exclusions: [W9002, W9003, W9004, W9006]
