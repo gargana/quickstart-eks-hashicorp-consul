@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Example Product Name on the AWS Cloud</title>
+<title>Consul on Amazon EKS on the AWS Cloud</title>
 <style>
 
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -808,9 +808,8 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_launch_the_quick_start">Launch the Quick Start</a></li>
 </ul>
 </li>
-<li><a href="#_test_the_deployment">Test the deployment</a></li>
 <li><a href="#_post_deployment_steps">Post deployment steps</a></li>
-<li><a href="#_best_practices_for_using_example_product_name_on_aws">Best practices for using Example Product Name on AWS</a></li>
+<li><a href="#_best_practices_for_using_consul_on_aws">Best practices for using Consul on AWS</a></li>
 <li><a href="#_security">Security</a></li>
 <li><a href="#_other_useful_information">Other useful information</a></li>
 <li><a href="#_faq">FAQ</a></li>
@@ -832,11 +831,11 @@ p.footer-text a{color:#d7d8d8}
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
-<h2 id="_example_product_name" class="discrete text-center">Example Product Name</h2>
+<h2 id="_consul_on_amazon_eks" class="discrete text-center">Consul on Amazon EKS</h2>
 <h2 id="_quick_start_reference_deployment" class="discrete text-left text-center">Quick Start Reference Deployment</h2>
 <div class="imageblock text-center">
 <div class="content">
-<img src="https://aws-quickstart.s3.amazonaws.com/quickstart-documentation-base/docs/boilerplate/.images/aws-quickstart-graphic.png" alt="QS" width="80" height="80">
+<img src="https://aws-quickstart.s3.amazonaws.com/quickstart-eks-hashicorp-consul/docs/boilerplate/.images/aws-quickstart-graphic.png" alt="QS" width="80" height="80">
 </div>
 </div>
 <h3 id="_draft_document_unofficial_guidance" class="discrete text-center">DRAFT DOCUMENT / UNOFFICIAL GUIDANCE</h3>
@@ -850,9 +849,9 @@ p.footer-text a{color:#d7d8d8}
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph text-center">
-<p><strong>May, 2020</strong><br>
-<em>John Doe and Jane Doe - Example Company Name, Ltd.</em><br>
-<em>Jim Smith - AWS Global Partner SA, AWS + Joe Jones - Technical Product Manager, AWS</em></p>
+<p><strong>October, 2020</strong><br>
+<em>Dan Callao - HashiCorp</em><br>
+<em>Andrew Gargan - AWS Solutions Architect</em></p>
 </div></div></td>
 </tr>
 </tbody>
@@ -864,14 +863,14 @@ p.footer-text a{color:#d7d8d8}
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Visit our <a href="https://github.com/aws-quickstart/quickstart-documentation-base" target="_blank" rel="noopener">GitHub repository</a> for source files and to post feedback,
+Visit our <a href="https://github.com/aws-quickstart/quickstart-eks-hashicorp-consul" target="_blank" rel="noopener">GitHub repository</a> for source files and to post feedback,
 report bugs, or submit feature ideas for this Quick Start.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph text-left">
-<p>This Quick Start was created by Example Company Name, Ltd. in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/" target="_blank" rel="noopener">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
+<p>This Quick Start was created by HashiCorp in collaboration with Amazon Web Services (AWS). <a href="http://aws.amazon.com/quickstart/" target="_blank" rel="noopener">Quick Starts</a> are automated reference deployments that use AWS CloudFormation templates to deploy key technologies on AWS, following AWS best practices.</p>
 </div>
 </div>
 </div>
@@ -888,10 +887,37 @@ report bugs, or submit feature ideas for this Quick Start.
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>This Quick Start reference deployment guide provides step-by-step instructions for deploying Example Product Name on the AWS Cloud.</p>
+<p>This Quick Start reference deployment guide provides step-by-step instructions for deploying HashiCorp
+Consul on Amazon Elastic Kubernetes Service (Amazon EKS) via HashiCorp
+Consul&#8217;s Helm chart.</p>
 </div>
 <div class="paragraph">
-<p>This Quick Start is for users who &lt;target audience and usage scenario&gt;</p>
+<p>HashiCorp Consul is a product that centrally secures, stores and controls access to
+tokens, passwords, certificates, and encryption keys through a UI, CLI, or an HTTP API.</p>
+</div>
+<div class="paragraph">
+<p>HashiCorp Consul&#8217;s core use cases include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Service registry &amp; health monitoring, to provide a real-time directory of all services with their health status;</p>
+</li>
+<li>
+<p>Network middleware automation, with service discovery for dynamic reconfiguration as services scale up, down or move;</p>
+</li>
+<li>
+<p>Zero trust network with service mesh, to secure service-to-service traffic with identity-based security policies and
+encrypted traffic with Mutual-TLS.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This Quick Start is for service networking professionals and application developers who want to securely connect
+services, monitor, and automate them. It&#8217;s deployed via the
+<a href="https://github.com/hashicorp/consul-helm">Consul Helm chart</a>,
+which contains all of the resource definitions to install and configure Consul inside of a
+Kubernetes cluster.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -931,13 +957,13 @@ collaborated with AWS on the content of the Quick Start.
 <p>Example content below:</p>
 </div>
 <div class="paragraph">
-<p><em>&lt;license information&gt;This Quick Start requires a license for Example Product Name. To use the Quick Start in your production environment, sign up for a license at &lt;link&gt;. When you launch the Quick Start, place the license key in an S3 bucket and specify its location.</em></p>
+<p><em>&lt;license information&gt;This Quick Start requires a license for Consul. To use the Quick Start in your production environment, sign up for a license at &lt;link&gt;. When you launch the Quick Start, place the license key in an S3 bucket and specify its location.</em></p>
 </div>
 <div class="paragraph">
 <p><em>If you don’t have a license, the Quick Start deploys with a trial license. The trial license gives you &lt;n&gt; days of free usage in a non-production environment. After this time, you can upgrade to a production license by following the instructions at &lt;link&gt;.</em></p>
 </div>
 <div class="paragraph">
-<p><em>&lt;AMI information&gt;The Quick Start requires a subscription to the Amazon Machine Image (AMI) for Example Product Name, which is available from <a href="https://aws.amazon.com/marketplace/" target="_blank" rel="noopener">AWS Marketplace</a>. Additional pricing, terms, and conditions may apply. For instructions, see <a href="#step-2.-subscribe-to-the-software-ami">step 2</a> in the deployment section.</em></p>
+<p><em>&lt;AMI information&gt;The Quick Start requires a subscription to the Amazon Machine Image (AMI) for Consul, which is available from <a href="https://aws.amazon.com/marketplace/" target="_blank" rel="noopener">AWS Marketplace</a>. Additional pricing, terms, and conditions may apply. For instructions, see <a href="#step-2.-subscribe-to-the-software-ami">step 2</a> in the deployment section.</em></p>
 </div></div></td>
 </tr>
 </tbody>
@@ -954,7 +980,7 @@ collaborated with AWS on the content of the Quick Start.
 <div class="content">
 <a class="image" href="images/architecture_diagram.png"><img src="images/architecture_diagram.png" alt="Architecture"></a>
 </div>
-<div class="title">Figure 1. Quick Start architecture for <em>Example Product Name</em></div>
+<div class="title">Figure 1. Quick Start architecture for <em>Consul on Amazon EKS</em></div>
 </div>
 <div class="paragraph">
 <p>As shown in Figure 1, the Quick Start sets up the following:</p>
@@ -970,52 +996,74 @@ collaborated with AWS on the content of the Quick Start.
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>Deploying this Quick Start for a new virtual private cloud (VPC) with
-default parameters builds the following <em>Example Product Name</em> environment in the
+default parameters builds the following <em>Consul</em> environment in the
 AWS Cloud.</p>
 </div>
 <div id="architecture1" class="imageblock">
 <div class="content">
-<a class="image" href="images/architecture_diagram.png"><img src="images/architecture_diagram.png" alt="Architecture" width="648" height="439"></a>
+<a class="image" href="../images/architecture_eks_consul.png"><img src="images/architecture_eks_consul.png" alt="Architecture" width="648" height="439"></a>
 </div>
-<div class="title">Figure 2. Quick Start architecture for <em>Example Product Name</em> on AWS</div>
+<div class="title">Figure 2. Quick Start architecture for <em>Consul</em> on Amazon EKS</div>
 </div>
 <div class="paragraph">
 <p>As shown in Figure 1, the Quick Start sets up the following:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>A highly available architecture that spans two Availability Zones.*</p>
-</li>
-<li>
-<p>A VPC configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.*</p>
-</li>
-</ul>
-</div>
 <div class="paragraph">
-<p>In the public subnets:</p>
+<p>In AWS:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.*</p>
+<p>Application Load Balancer.</p>
 </li>
 <li>
-<p>A Linux bastion host in an Auto Scaling group to allow inbound Secure
-Shell (SSH) access to EC2 instances in public and private subnets.*</p>
+<p>Amazon Certificate Manager(ACM) certificate.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>In the private subnets:
-* &lt;describe any additional components&gt;.</p>
+<p>In Kubernetes:</p>
 </div>
-<div class="paragraph">
-<p>*The template that deploys the Quick Start into an existing VPC skips
-the components marked by asterisks and prompts you for your existing VPC
-configuration.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Dedicated nodegroup for Consul.</p>
+</li>
+<li>
+<p>namespace for Consul.</p>
+</li>
+<li>
+<p>Internal Consul TLS certificate and certificate authority.</p>
+</li>
+<li>
+<p>Federation secret.</p>
+</li>
+<li>
+<p>Gossip secret.</p>
+</li>
+<li>
+<p>Consul service:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Consul server pods.</p>
+</li>
+<li>
+<p>Consul mesh-gateway service.</p>
+</li>
+<li>
+<p>Consul dns service.</p>
+</li>
+<li>
+<p>Consul ui service.</p>
+</li>
+<li>
+<p>Ingres controller for Consul ui service.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div></div></td>
 </tr>
 </tbody>
@@ -1046,7 +1094,9 @@ Cloud.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>This Quick Start assumes familiarity with &lt;knowledge expectations&gt;.</p>
+<p>This Quick Start assumes familiarity with <a href="https://aws.amazon.com/eks/" class="external" target="_blank" rel="noopener">Amazon EKS</a>,
+<a href="https://aws.amazon.com/cloudformation/" class="external" target="_blank" rel="noopener">AWS CloudFormation</a> and
+<a href="https://kubernetes.io/" class="external" target="_blank" rel="noopener">Kubernetes</a>.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1084,13 +1134,13 @@ Cloud.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Deploy Example Product Name into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, EKS cluster, a node group, and other infrastructure components. It then deploys Example Product Name into this new EKS cluster.</p>
+<p><strong>Deploy Consul into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, EKS cluster, a node group, and other infrastructure components. It then deploys Consul into this new EKS cluster.</p>
 </li>
 <li>
-<p><strong>Deploy Example Product Name into a new EKS cluster in an existing VPC</strong>. This option builds a new AWS EKS cluster, a node group, and other infrastructure components into an existing VPC. It then deploys Example Product Name into this new EKS cluster.</p>
+<p><strong>Deploy Consul into a new EKS cluster in an existing VPC</strong>. This option builds a new AWS EKS cluster, a node group, and other infrastructure components into an existing VPC. It then deploys Consul into this new EKS cluster.</p>
 </li>
 <li>
-<p><strong>Deploy Example Product Name into an existing EKS cluster</strong>. This option provisions Example Product Name in your existing AWS infrastructure. Note that when deploying into an EKS cluster that was not created by the Amazon EKS Quick Start there you must prepare the cluster as described in Step 2 of the Deployment Steps section of this guide.</p>
+<p><strong>Deploy Consul into an existing EKS cluster</strong>. This option provisions Consul in your existing AWS infrastructure. Note that when deploying into an EKS cluster that was not created by the Amazon EKS Quick Start there you must prepare the cluster as described in Step 2 of the Deployment Steps section of this guide.</p>
 </li>
 </ul>
 </div>
@@ -1204,14 +1254,14 @@ You are responsible for the cost of the AWS services used while running this Qui
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_launch_link" target="_blank" rel="noopener">Deploy into a new VPC and new EKS cluster</a></p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_template_link" target="_blank" rel="noopener">View template</a></p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_launch_link" target="_blank" rel="noopener">Deploy into a new EKS cluster in an existing VPC</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_new_vpc}[Deploy into a new VPC and new EKS cluster^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_existing_vpc}[Deploy into a new EKS cluster in an existing VPC^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_existing_cluster}[Deploy into an existing EKS cluster^]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_template_link" target="_blank" rel="noopener">View template</a></p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_launch_link" target="_blank" rel="noopener">Deploy into an existing EKS cluster</a></p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="http://qs_template_link" target="_blank" rel="noopener">View template</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{template_new_vpc}[View template^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{template_existing_vpc}[View template^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">{template_existing_cluster}[View template^]</p></td>
 </tr>
 </tbody>
 </table>
@@ -1225,7 +1275,7 @@ You are responsible for the cost of the AWS services used while running this Qui
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-If you’re deploying Example Product Name into an existing VPC, make sure that any private subnets have <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html" target="_blank" rel="noopener">NAT gateways</a> in their route tables, to allow the Quick Start to download packages and software. Also, make sure that the domain name option in the DHCP options is configured as explained in the <a href="http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html" target="_blank" rel="noopener">Amazon VPC documentation</a>.
+If you’re deploying Consul into an existing VPC, make sure that any private subnets have <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html" target="_blank" rel="noopener">NAT gateways</a> in their route tables, to allow the Quick Start to download packages and software. Also, make sure that the domain name option in the DHCP options is configured as explained in the <a href="http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html" target="_blank" rel="noopener">Amazon VPC documentation</a>.
 </td>
 </tr>
 </table>
@@ -1233,7 +1283,7 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <div class="olist arabic">
 <ol class="arabic" start="2">
 <li>
-<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Example Product Name will be built. The template is launched in the us-east-1 Region by default.</p>
+<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This is where the network infrastructure for Consul will be built. The template is launched in the us-east-1 Region by default.</p>
 </li>
 <li>
 <p>On the <strong>Create stack</strong> page, keep the default setting for the template URL, and then choose <strong>Next</strong>.</p>
@@ -1251,10 +1301,10 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <p>Choose <strong>Create stack</strong> to deploy the stack.</p>
 </li>
 <li>
-<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Example Product Name deployment is ready.</p>
+<p>Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Consul deployment is ready.</p>
 </li>
 <li>
-<p>Use the values displayed in the <strong>Outputs</strong> tab for the stack, as shown in <a href="#cfn_outputs">Example Product Name outputs after successful deployment</a>, to view the created resources.</p>
+<p>Use the values displayed in the <strong>Outputs</strong> tab for the stack, as shown in <a href="#cfn_outputs">Consul outputs after successful deployment</a>, to view the created resources.</p>
 </li>
 </ol>
 </div>
@@ -1262,7 +1312,7 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <div class="content">
 <a class="image" href="images/cfn_outputs.png"><img src="images/cfn_outputs.png" alt="cfn_outputs" width="648" height="439"></a>
 </div>
-<div class="title">Figure 3. Example Product Name outputs after successful deployment</div>
+<div class="title">Figure 3. Consul outputs after successful deployment</div>
 </div>
 <div class="paragraph">
 <p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/additional_info.adoc</code></strong></em></p>
@@ -1272,38 +1322,51 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_test_the_deployment">Test the deployment</h2>
-<div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
 <h2 id="_post_deployment_steps">Post deployment steps</h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p>See the Consul on Amazon EKS <a href="https://www.vaultproject.io/guides" class="external" target="_blank" rel="noopener">user guide</a> to configure
+Consul on Amazon EKS.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_best_practices_for_using_example_product_name_on_aws">Best practices for using Example Product Name on AWS</h2>
+<h2 id="_best_practices_for_using_consul_on_aws">Best practices for using Consul on AWS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em>Add any best practices for using the software.</em></p>
+<p>The Consul UI is provided for exploratory purposes. We recommend keeping the
+Consul UI accessible only inside the VPC or disabling access to it by setting the
+permitted IP range to 127.0.0.1/32.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_security">Security</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any security-related information.</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p>End to end TLS is enforced.</p>
+</li>
+<li>
+<p>A dedicated Kubernetes namespace is created for Consul on Amazon EKS Kubernetes resources.</p>
+</li>
+<li>
+<p>Consul on Amazon EKS is running on dedicated Kubernetes nodes.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_other_useful_information">Other useful information</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any other details that will help the customer use the software on AWS.</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.consul.io/docs/guides/kuberenetes-deployment" class="external" target="_blank" rel="noopener">Consul Kubernetes integration</a></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/faq_troubleshooting.adoc</code></strong></em></p>
@@ -1318,7 +1381,10 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <p><strong>Q.</strong> I encountered a <strong>CREATE_FAILED</strong> error when I launched the Quick Start.</p>
 </div>
 <div class="paragraph">
-<p><strong>A.</strong> If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with <strong>Rollback on failure</strong> set to <strong>Disabled</strong>. (This setting is under <strong>Advanced</strong> in the AWS CloudFormation console, <strong>Options</strong> page.) With this setting, the stack’s state is retained and the instance is left running, so you can troubleshoot the issue. (For Windows, look at the log files in %ProgramFiles%\Amazon\EC2ConfigService and C:\cfn\log.)</p>
+<p><strong>A.</strong> If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with
+<strong>Rollback on failure</strong> set to <strong>Disabled</strong>. (This setting is under <strong>Advanced</strong> in the AWS CloudFormation console,
+<strong>Options</strong> page.) With this setting, the stack’s state is retained and the instance is left running, so you can
+troubleshoot the issue. (For Windows, look at the log files in %ProgramFiles%\Amazon\EC2ConfigService and C:\cfn\log.)</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1327,19 +1393,25 @@ If you’re deploying Example Product Name into an existing VPC, make sure that 
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, you continue to incur AWS charges for this stack. Please make sure to delete the stack when you finish troubleshooting.
+When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, you continue to incur AWS charges for this stack. Please make
+sure to delete the stack when you finish troubleshooting.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>For additional information, see <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html" target="_blank" rel="noopener">Troubleshooting AWS CloudFormation</a> on the AWS website.</p>
+<p>For additional information, see
+<a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html" class="external" target="_blank" rel="noopener">Troubleshooting AWS CloudFormation</a>
+on the AWS website.</p>
 </div>
 <div class="paragraph">
 <p><strong>Q.</strong> I encountered a size limitation error when I deployed the AWS CloudFormation templates.</p>
 </div>
 <div class="paragraph">
-<p><strong>A.</strong> We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html" target="_blank" rel="noopener">AWS documentation</a>.</p>
+<p><strong>A.</strong> We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If
+you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might
+encounter template size limitations. For more information about AWS CloudFormation quotas, see the
+<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html" class="external" target="_blank" rel="noopener">AWS documentation</a>.</p>
 </div>
 </div>
 </div>
@@ -1347,7 +1419,12 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <h2 id="_troubleshooting">Troubleshooting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>&lt;Steps for troubleshooting the deployment go here.&gt;</p>
+<p>For general EKS troubleshooting steps see the
+<a href="https://aws-quickstart.github.io/quickstart-amazon-eks/" class="external" target="_blank" rel="noopener">EKS Quick Start documentation</a>.</p>
+</div>
+<div class="paragraph">
+<p>For HashiCorp Consul specific troubleshooting see
+<a href="https://learn.hashicorp.com/tutorials/consul/troubleshooting" class="external" target="_blank" rel="noopener">Consul troubleshooting documentation</a>.</p>
 </div>
 </div>
 </div>
@@ -1529,7 +1606,7 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <h2 id="_send_us_feedback">Send us feedback</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-documentation-base" target="_blank" rel="noopener">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/" target="_blank" rel="noopener">Quick Start Contributor’s Guide</a>.</p>
+<p>To post feedback, submit feature ideas, or report bugs, use the <strong>Issues</strong> section of the <a href="https://github.com/aws-quickstart/quickstart-eks-hashicorp-consul" target="_blank" rel="noopener">GitHub repository</a> for this Quick Start. If you’d like to submit code, please review the <a href="https://aws-quickstart.github.io/" target="_blank" rel="noopener">Quick Start Contributor’s Guide</a>.</p>
 </div>
 </div>
 </div>
@@ -1545,7 +1622,7 @@ When you set <strong>Rollback on failure</strong> to <strong>Disabled</strong>, 
 <h2 id="_github_repository">GitHub repository</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-documentation-base" target="_blank" rel="noopener">GitHub repository</a> to download
+<p>You can visit our <a href="https://github.com/aws-quickstart/quickstart-eks-hashicorp-consul" target="_blank" rel="noopener">GitHub repository</a> to download
 the templates and scripts for this Quick Start, to post your comments,
 and to share your customizations with others.</p>
 </div>
@@ -1567,7 +1644,7 @@ and to share your customizations with others.</p>
 <p class="footer-text">
 <!-- We can use document attributes: -->
 <!-- Generated with Asciidoctor v2.0.10. -->
-<a href="https://aws.amazon.com/privacy/">Privacy</a> | <a href="https://aws.amazon.com/terms/">Site terms</a> | &copy; 2020, Amazon Web Services, Inc. or its affiliates and Example Company Name, Ltd.. All rights reserved.
+<a href="https://aws.amazon.com/privacy/">Privacy</a> | <a href="https://aws.amazon.com/terms/">Site terms</a> | &copy; 2020, Amazon Web Services, Inc. or its affiliates and HashiCorp. All rights reserved.
 </p>
 </body>
 </html>
