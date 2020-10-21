@@ -5,9 +5,9 @@
 |Parameter label (name) |Default value|Description|Permitted IP range
 (`RemoteAccessCIDR`)|`**__Requires input__**`|The CIDR IP range that is permitted to access the Consul UI. We recommend that you set this value to a trusted IP range.|HTTP proxy
 (`HttpProxy`)|`**__Blank string__**`|(Optional) HTTP(S) proxy configuration, if provided all Consul nodes and pod egress traffic will use this proxy. Example: http://10.101.0.100:3128/.|First subnet ID for Consul node Auto Scaling group
-(`PrivateSubnet1ID`)|`**__Requires input__**`|NO_DESCRIPTION|Second subnet ID for Consul node Auto Scaling group
-(`PrivateSubnet2ID`)|`**__Requires input__**`|NO_DESCRIPTION|Third subnet ID for Consul node Auto Scaling group
-(`PrivateSubnet3ID`)|`**__Requires input__**`|NO_DESCRIPTION
+(`PrivateSubnet1ID`)|`**__Requires input__**`|ID of private subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx).|Second subnet ID for Consul node Auto Scaling group
+(`PrivateSubnet2ID`)|`**__Requires input__**`|ID of private subnet 2 in Availability Zone 2 (e.g., subnet-xxxxxxxx).|Third subnet ID for Consul node Auto Scaling group
+(`PrivateSubnet3ID`)|`**__Requires input__**`|ID of private subnet 3 in Availability Zone 3 (e.g., subnet-xxxxxxxx).
 |===
 .HashiCorp Consul configuration
 [width="100%",cols="16%,11%,73%",options="header",]
@@ -15,7 +15,7 @@
 |Parameter label (name) |Default value|Description|HashiCorp Consul version
 (`ConsulVersion`)|`1.8.4`|Consul version.|HashiCorp Consul deployment size
 (`ConsulDeploymentSize`)|`small`|Deployment size of dedicated HashiCorp Consul EKS nodes.|Number of HashiCorp Consul server nodes
-(`ConsulReplicas`)|`3`|NO_DESCRIPTION|EC2 Key pair
+(`ConsulReplicas`)|`3`|Number of Consul nodes to deploy.|EC2 Key pair
 (`KeyPairName`)|`**__Requires input__**`|The name of an existing public/private key pair, which allows you to securely connect to your instance after it launches.|**NO_LABEL**
 (`KubernetesNameSpace`)|`consul-qs`|Kubernetes namespace for Consul resources.|Internal or external load balancer?
 (`LoadBalancerType`)|`Internal`|Specify if the load balancer for HashiCorp Consul is internal or external.|Load balancer DNS name

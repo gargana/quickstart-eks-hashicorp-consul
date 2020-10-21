@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Consul on Amazon EKS on the AWS Cloud</title>
+<title></title>
 <style>
 
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -814,7 +814,6 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_best_practices_for_using_consul_on_aws">Best practices for using Consul on AWS</a></li>
 </ul>
 </li>
-<li><a href="#_best_practices_for_using_consul_on_aws_2">Best practices for using Consul on AWS</a></li>
 <li><a href="#_security">Security</a></li>
 <li><a href="#_other_useful_information">Other useful information</a></li>
 <li><a href="#_faq">FAQ</a></li>
@@ -1000,20 +999,6 @@ collaborated with AWS on the content of the Quick Start.
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Deploying this Quick Start for a new virtual private cloud (VPC) with
-default parameters builds the following <em>Consul</em> environment in the
-AWS Cloud.</p>
-</div>
-<div id="architecture1" class="imageblock">
-<div class="content">
-<a class="image" href="../images/architecture_eks_consul.png"><img src="images/architecture_eks_consul.png" alt="Architecture" width="648" height="439"></a>
-</div>
-<div class="title">Figure 2. Quick Start architecture for <em>Consul</em> on Amazon EKS</div>
-</div>
-<div class="paragraph">
-<p>As shown in Figure 1, the Quick Start sets up the following:</p>
-</div>
-<div class="paragraph">
 <p>In AWS:</p>
 </div>
 <div class="ulist">
@@ -1259,14 +1244,14 @@ You are responsible for the cost of the AWS services used while running this Qui
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_new_vpc}[Deploy into a new VPC and new EKS cluster^]</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_existing_vpc}[Deploy into a new EKS cluster in an existing VPC^]</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{launch_existing_cluster}[Deploy into an existing EKS cluster^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/V7d9d" target="_blank" rel="noopener">Deploy into a new VPC and new EKS cluster</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/98zVN" target="_blank" rel="noopener">Deploy into a new EKS cluster in an existing VPC</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/geqmr" target="_blank" rel="noopener">Deploy into an existing EKS cluster</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{template_new_vpc}[View template^]</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{template_existing_vpc}[View template^]</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">{template_existing_cluster}[View template^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/DgqPB" target="_blank" rel="noopener">View template</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/mbD5g" target="_blank" rel="noopener">View template</a></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><a href="https://fwd.aws/vN4Nm" target="_blank" rel="noopener">View template</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1317,7 +1302,7 @@ If you’re deploying Consul into an existing VPC, make sure that any private su
 <div class="content">
 <a class="image" href="images/cfn_outputs.png"><img src="images/cfn_outputs.png" alt="cfn_outputs" width="648" height="439"></a>
 </div>
-<div class="title">Figure 3. Consul outputs after successful deployment</div>
+<div class="title">Figure 2. Consul outputs after successful deployment</div>
 </div>
 <div class="paragraph">
 <p><em><strong>This portion of the deployment guide is located at <code>docs/partner_editable/additional_info.adoc</code></strong></em></p>
@@ -1331,37 +1316,30 @@ If you’re deploying Consul into an existing VPC, make sure that any private su
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_test_the_deployment">Test the deployment</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Kubernetes Consul deployment namespace and dedicated node selection:
-The deployment creates a namespace named <code>consul-server</code> by default. To verify the namespace in kuberkenes, please
+<div class="sect3">
+<h4 id="_kubernetes_consul_deployment_namespace_and_dedicated_node_selection">Kubernetes Consul deployment namespace and dedicated node selection:</h4>
+<div class="paragraph">
+<p>The deployment creates a namespace named <code>consul-server</code> by default. To verify the namespace in kuberkenes, please
 run the following:</p>
-<div class="literalblock">
+</div>
+<div class="listingblock">
 <div class="content">
-<pre>[source, bash]
-----
-$ kubectl get ns
+<pre>$ kubectl get ns
 NAME              STATUS   AGE
 default           Active   3h24m
 kube-node-lease   Active   3h24m
 kube-public       Active   3h24m
 kube-system       Active   3h24m
-consul-server      Active   3h9m
-----</pre>
+consul-server      Active   3h9m</pre>
 </div>
 </div>
-<div class="literalblock">
+<div class="paragraph">
+<p>The deployment builds kuberntes server pods of the <code>consul-server</code> namespace on dedicated nodes. To verify the dedicated nodes,
+please run the following:</p>
+</div>
+<div class="listingblock">
 <div class="content">
-<pre>The deployment builds kuberntes server pods of the `consul-server` namespace on dedicated nodes. To verify the dedicated nodes,
-please run the following:</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>[source, bash]
-----
-$ kubectl get pods -o wide -n consul-server
+<pre>$ kubectl get pods -o wide -n consul-server
 NAME                                                              READY   STATUS      RESTARTS   AGE     IP            NODE                                        NOMINATED NODE   READINESS GATES
 consul-1602814488-consul-6znks                                    1/1     Running     0          3h23m   10.0.31.27    ip-10-0-14-63.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
 consul-1602814488-consul-7dwxk                                    1/1     Running     0          3h23m   10.0.33.58    ip-10-0-55-7.us-west-2.compute.internal     &lt;none&gt;           &lt;none&gt;
@@ -1377,16 +1355,18 @@ consul-1602814488-consul-server-1                                 1/1     Runnin
 consul-1602814488-consul-server-2                                 1/1     Running     0          3h23m   10.0.56.52    ip-10-0-55-7.us-west-2.compute.internal     &lt;none&gt;           &lt;none&gt;
 consul-1602814488-consul-sync-catalog-5bc656b68d-hvfv8            1/1     Running     0          3h23m   10.0.68.153   ip-10-0-83-89.us-west-2.compute.internal    &lt;none&gt;           &lt;none&gt;
 consul-1602814488-consul-zxj8m                                    1/1     Running     0          3h23m   10.0.9.167    ip-10-0-14-3.us-west-2.compute.internal     &lt;none&gt;           &lt;none&gt;
-generate-gossip-secret-sg-087bc91b3b3c5dc0d-vqg6j                 0/1     Completed   0          3h25m   10.0.49.86    ip-10-0-55-7.us-west-2.compute.internal     &lt;none&gt;           &lt;none&gt;
----</pre>
+generate-gossip-secret-sg-087bc91b3b3c5dc0d-vqg6j                 0/1     Completed   0          3h25m   10.0.49.86    ip-10-0-55-7.us-west-2.compute.internal     &lt;none&gt;           &lt;none&gt;</pre>
 </div>
 </div>
-</li>
-<li>
-<p>Kubernetes services:
-The deployment creates a minimum of 7 services as follows:
-<code>`
-$ kubectl get svc -n consul-server
+</div>
+<div class="sect3">
+<h4 id="_kubernetes_services">Kubernetes services:</h4>
+<div class="paragraph">
+<p>The deployment creates a minimum of 7 services as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ kubectl get svc -n consul-server
 NAME                                            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)
 consul-1602814488-consul-connect-injector-svc   ClusterIP      172.20.81.243    &lt;none&gt;                                                                   443/TCP
 consul-1602814488-consul-dns                    ClusterIP      172.20.180.148   &lt;none&gt;                                                                   53/TCP,53/UDP
@@ -1394,37 +1374,41 @@ consul-1602814488-consul-mesh-gateway           LoadBalancer   172.20.121.116   
 consul-1602814488-consul-server                 ClusterIP      None             &lt;none&gt;                                                                   8501/TCP,8301/TCP,8301/UDP,8302/TCP,8302/UDP,8300/TCP,8600/TCP,8600/UDP
 consul-1602814488-consul-ui                     NodePort       172.20.249.130   &lt;none&gt;                                                                   443:32732/TCP
 k8sconsul                                       ExternalName   &lt;none&gt;           consul.service.consul                                                    &lt;none&gt;
-k8smesh-gateway                                 ExternalName   &lt;none&gt;           mesh-gateway.service.consul                                              &lt;none&gt;
-</code>`</p>
-</li>
-<li>
-<p>Consul agent TLS encryption:
-Verify the deployment configuration by running:
-<code>`
-$ kubectl get deploy -n consul-server -o yaml
-</code>`
-Then observe the volume mounts for each pod:
-<code>`</code>
-volumeMounts:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>mountPath: /consul/tls/ca
-name: consul-ca-cert</p>
-</li>
-<li>
-<p>mountPath: /consul/tls/client/ca
-  name: consul-auto-encrypt-ca-cert
-<code>`</code></p>
-</li>
-</ul>
+k8smesh-gateway                                 ExternalName   &lt;none&gt;           mesh-gateway.service.consul                                              &lt;none&gt;</pre>
 </div>
-</li>
-<li>
-<p>Consul UI SSL certificate:
-This is done by verifying the DNS endpoint of the deployment and checking for the SSL cert installation
-<code>`</code>
-$ openssl s_client -connect  lonconsul.gargana.myinstance.com:443
+</div>
+</div>
+<div class="sect3">
+<h4 id="_consul_agent_tls_encryption">Consul agent TLS encryption:</h4>
+<div class="paragraph">
+<p>Verify the deployment configuration by running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ kubectl get deploy -n consul-server -o yaml</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then observe the volume mounts for each pod:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>volumeMounts:
+- mountPath: /consul/tls/ca
+  name: consul-ca-cert
+- mountPath: /consul/tls/client/ca
+  name: consul-auto-encrypt-ca-cert</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_consul_ui_ssl_certificate">Consul UI SSL certificate:</h4>
+<div class="paragraph">
+<p>This is done by verifying the DNS endpoint of the deployment and checking for the SSL cert installation</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ openssl s_client -connect  lonconsul.gargana.myinstance.com:443
 CONNECTED(00000007)
 depth=2 C = US, O = Amazon, CN = Amazon Root CA 1
 verify return:1
@@ -1477,26 +1461,24 @@ XzvTdg1Q8VPfuQWUJb8tmITseg+8KDTyUn1u2SiNWHj17hBTSBTjkVt97id0BtZ/
 UYrBWVldmJw0pJ6XYgQc6pBg6A86390sGkRzOfhYkT8AIbKNKSwtCRV0aBY2Nb4+
 i81nP0KKeSvWcRf4/Gj+WA==
 -----END CERTIFICATE-----
-subject=CN = lonconsul.gargana.myinstance.com</p>
-<div class="literalblock">
-<div class="content">
-<pre>issuer=C = US, O = Amazon, OU = Server CA 1B, CN = Amazon</pre>
+subject=CN = lonconsul.gargana.myinstance.com
+
+issuer=C = US, O = Amazon, OU = Server CA 1B, CN = Amazon
+
+---</pre>
 </div>
 </div>
-<hr>
-<div class="literalblock">
-<div class="content">
-<pre>```</pre>
 </div>
-</div>
-</li>
-<li>
-<p>Envoy proxy client leaf certificate exchange:
-In order to check the leaf certificate generation a the proxy endpoints, you will need to deploy at least one dummy service and its <code>envoy</code>
+<div class="sect3">
+<h4 id="_envoy_proxy_client_leaf_certificate_exchange">Envoy proxy client leaf certificate exchange:</h4>
+<div class="paragraph">
+<p>In order to check the leaf certificate generation a the proxy endpoints, you will need to deploy at least one dummy service and its <code>envoy</code>
 proxy. To learn more, please read  [Secure Applications with Service Sidecar Proxies](<a href="https://learn.hashicorp.com/tutorials/consul/service-mesh-application-secure-networking" class="bare">https://learn.hashicorp.com/tutorials/consul/service-mesh-application-secure-networking</a>).
-For instance, to  check on the <code>web</code> envoy proxy, run the following:
-<code>`
-$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0&#8201;&#8212;&#8201;/bin/sh
+For instance, to  check on the <code>web</code> envoy proxy, run the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0 -- /bin/sh
 / # consul catalog services
 api
 api-sidecar-proxy
@@ -1512,7 +1494,7 @@ consulweb-vault-server
 mesh-gateway
 web
 web-sidecar-proxy
-/ # curl -ks <a href="https://127.0.0.1:8501/v1/agent/connect/ca/leaf/web-sidecar-proxy" class="bare">https://127.0.0.1:8501/v1/agent/connect/ca/leaf/web-sidecar-proxy</a> | jq
+/ # curl -ks https://127.0.0.1:8501/v1/agent/connect/ca/leaf/web-sidecar-proxy | jq
 {
   "SerialNumber": "1a",
   "CertPEM": "-----BEGIN CERTIFICATE-----\nMIICYDCCAgagAwIBAgIBGjAKBggqhkjOPQQDAjAxMS8wLQYDVQQDEyZwcmktMTVv\nYXZxMHIuY29uc3VsLmNhLjNjN2YzM2U3LmNvbnN1bDAeFw0yMDEwMTkyMTQ3NDZa\nFw0yMDEwMjIyMTQ3NDZaMDYxNDAyBgNVBAMTK3dlYnNpZGVjYXJwcm94eS5zdmMu\nZGVmYXVsdC4zYzdmMzNlNy5jb25zdWwwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNC\nAATZ2PTll8KrJxSmOvOf3eVvXbuUlCNvrAatL+v+/i+B4doGWY+r8a0zGMYVgYJj\nglOPRYzPxEnAnqR9OYP9ao52o4IBCDCCAQQwDgYDVR0PAQH/BAQDAgO4MB0GA1Ud\nJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAMBgNVHRMBAf8EAjAAMCkGA1UdDgQi\nBCCpMMDV6WJdbaLk+giLOOZ9qEgXffbs1DtvFHvqK34PpDArBgNVHSMEJDAigCBg\nM4sn0idMnqzXCFldTIhkymtM/YjX+Su2T6p+BfQe8jBtBgNVHREEZjBkhmJzcGlm\nZmU6Ly8zYzdmMzNlNy04NDcyLTk4M2YtNzJlMi02ZjE2OTlkNTE1NjQuY29uc3Vs\nL25zL2RlZmF1bHQvZGMvdXMtd2VzdC0yL3N2Yy93ZWItc2lkZWNhci1wcm94eTAK\nBggqhkjOPQQDAgNIADBFAiEAkE4G+I42DtHX26+DrXCfzjXmvIKA1qDXYHdGYN3/\nSmACIGJwwxfltaME49SW99rnrhSoDVeTy5tnyX1gc6R2JtWU\n-----END CERTIFICATE-----\n",
@@ -1523,27 +1505,35 @@ web-sidecar-proxy
   "ValidBefore": "2020-10-22T21:47:46Z",
   "CreateIndex": 428260,
   "ModifyIndex": 428260
-}
-</code>`</p>
-</li>
-<li>
-<p>Consul raft peer election:
-To check on the  raft peer election status, run the following:
-<code>`
-$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0&#8201;&#8212;&#8201;/bin/sh
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_consul_raft_peer_election">Consul raft peer election:</h4>
+<div class="paragraph">
+<p>To check on the  raft peer election status, run the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0 -- /bin/sh
 / # consul operator raft list-peers
 Node                               ID                                    Address           State     Voter  RaftProtocol
 consul-1602814488-consul-server-1  bfd1069d-4780-be4f-6229-4b7a7309e88c  10.0.95.234:8300  leader    true   3
 consul-1602814488-consul-server-2  fc329572-3f74-7488-6885-f50769a5c5a1  10.0.56.52:8300   follower  true   3
-consul-1602814488-consul-server-0  9162e175-e79f-9a0b-3ae1-ad7a08ee8fe7  10.0.13.78:8300   follower  true   3
-</code>`</p>
-</li>
-<li>
-<p>Consul auto-pilot:
-To check on the Consul auto-pilot configuration, run the following:
-<code>`
-$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0&#8201;&#8212;&#8201;/bin/sh
-/ # curl -ks <a href="https://127.0.0.1:8501/v1/operator/autopilot/configuration" class="bare">https://127.0.0.1:8501/v1/operator/autopilot/configuration</a> | jq
+consul-1602814488-consul-server-0  9162e175-e79f-9a0b-3ae1-ad7a08ee8fe7  10.0.13.78:8300   follower  true   3</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_consul_auto_pilot">Consul auto-pilot:</h4>
+<div class="paragraph">
+<p>To check on the Consul auto-pilot configuration, run the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0 -- /bin/sh
+/ # curl -ks https://127.0.0.1:8501/v1/operator/autopilot/configuration | jq
 {
   "CleanupDeadServers": true,
   "LastContactThreshold": "200ms",
@@ -1555,53 +1545,43 @@ $ kubectl -n consul-server  exec  -it consul-1602814488-consul-server-0&#8201;&#
   "UpgradeVersionTag": "",
   "CreateIndex": 5,
   "ModifyIndex": 5
-}
-</code>`</p>
-</li>
-</ul>
+}</pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_best_practices_for_using_consul_on_aws">Best practices for using Consul on AWS</h3>
 <div class="paragraph">
-<p>These are the best best practices for using Consul on AWS. Please note that these best practices are enabled by default in this
-quickstart:</p>
+<p>These are the best best practices for using Consul on AWS. Please note that these best practices are enabled by default
+in this Quick Start:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Enable Consul ACL&#8217;s for token-based authentication. This will enable users to provide a token to autheticate and access Consul
-control plane and API&#8217;s. To learn more, please  visit [Secure Consul with Access Control Lists (ACLs)](<a href="https://learn.hashicorp.com/tutorials/consul/access-control-setup-production" class="bare">https://learn.hashicorp.com/tutorials/consul/access-control-setup-production</a>)</p>
+<p>Enable Consul ACL&#8217;s for token-based authentication. This will enable users to provide a token to authenticate and
+access Consul control plane and API&#8217;s. To learn more, please visit
+<a href="https://learn.hashicorp.com/tutorials/consul/access-control-setup-production">Secure Consul with Access Control Lists (ACLs)</a>.</p>
 </li>
 <li>
 <p>Enable Gossip encryption. Gossip encryption will make sure the ACL authentication between server and client agents (RPC)
-are protected from sniffing. To learn  more, please  visit [Secure Gossip Communication with Encryption](<a href="https://learn.hashicorp.com/tutorials/consul/gossip-encryption-secure?in=consul/security-networking#gossip-encryption" class="bare">https://learn.hashicorp.com/tutorials/consul/gossip-encryption-secure?in=consul/security-networking#gossip-encryption</a>)</p>
+are protected from sniffing. To learn more, please visit
+<a href="https://learn.hashicorp.com/tutorials/consul/gossip-encryption-secure?in=consul/security-networking#gossip-encryption">Secure Gossip Communication with Encryption</a>.</p>
 </li>
 <li>
 <p>Enable Agent TLS encryption. Consul supports using TLS to verify the authenticity of servers and clients. To learn more,
-please visit [Secure Consul Agent Communication with TLS Encryption](<a href="https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure?in=consul/security-networking" class="bare">https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure?in=consul/security-networking</a>)</p>
+please visit <a href="https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure?in=consul/security-networking">Secure Consul Agent Communication with TLS Encryption</a>.</p>
 </li>
 <li>
-<p>Enabled SSL certificate on Consul agents. This will protect the Consul agent communication from attacks. To learn more, please visit [Secure Consul Agent Communication with TLS Encryption and OpenSSL Certificates](<a href="https://learn.hashicorp.com/tutorials/consul/tls-encryption-openssl-secure?in=consul/day-2-agent-authentication" class="bare">https://learn.hashicorp.com/tutorials/consul/tls-encryption-openssl-secure?in=consul/day-2-agent-authentication</a>)</p>
+<p>Enabled SSL certificate on Consul agents. This will protect the Consul agent communication from attacks. To learn more,
+please visit <a href="https://learn.hashicorp.com/tutorials/consul/tls-encryption-openssl-secure?in=consul/day-2-agent-authentication">Secure Consul Agent Communication with TLS Encryption and OpenSSL Certificates</a>.</p>
 </li>
 <li>
-<p>Enable Connect Inject and gRPC protocol. This enables Envoy proxy at the client pods and gRPC is necessary. To learn more, please visit [Secure Service Communication with Consul Service Mesh and Envoy](<a href="https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy#enable-connect-and-grpc" class="bare">https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy#enable-connect-and-grpc</a>)
-TODO: ddd
-See the Consul <a href="https://www.consul.io/docs/guides" class="external" target="_blank" rel="noopener">user guide</a> to configure
-Consul.</p>
+<p>Enable Connect Inject and gRPC protocol. This enables Envoy proxy at the client pods and gRPC is necessary. To learn more,
+please visit <a href="https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy#enable-connect-and-grpc">Secure Service Communication with Consul Service Mesh and Envoy</a>.</p>
 </li>
 </ul>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_best_practices_for_using_consul_on_aws_2">Best practices for using Consul on AWS</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The Consul UI is provided for exploratory purposes. We recommend keeping the
-Consul UI accessible only inside the VPC or disabling access to it by setting the
-permitted IP range to 127.0.0.1/32.</p>
 </div>
 </div>
 </div>
@@ -1618,6 +1598,11 @@ permitted IP range to 127.0.0.1/32.</p>
 </li>
 <li>
 <p>Consul on Amazon EKS is running on dedicated Kubernetes nodes.</p>
+</li>
+<li>
+<p>The Consul UI is provided for exploratory purposes. We recommend keeping the
+Consul UI accessible only inside the VPC or disabling access to it by setting the
+permitted IP range to 127.0.0.1/32.</p>
 </li>
 </ul>
 </div>
@@ -1742,19 +1727,19 @@ encounter template size limitations. For more information about AWS CloudFormati
 <td class="tableblock halign-left valign-top"><p class="tableblock">First subnet ID for Consul node Auto Scaling group
 (<code>PrivateSubnet1ID</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_DESCRIPTION</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of private subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Second subnet ID for Consul node Auto Scaling group
 (<code>PrivateSubnet2ID</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_DESCRIPTION</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of private subnet 2 in Availability Zone 2 (e.g., subnet-xxxxxxxx).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Third subnet ID for Consul node Auto Scaling group
 (<code>PrivateSubnet3ID</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><strong><em>Requires input</em></strong></code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_DESCRIPTION</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of private subnet 3 in Availability Zone 3 (e.g., subnet-xxxxxxxx).</p></td>
 </tr>
 </tbody>
 </table>
@@ -1789,7 +1774,7 @@ encounter template size limitations. For more information about AWS CloudFormati
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of HashiCorp Consul server nodes
 (<code>ConsulReplicas</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>3</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_DESCRIPTION</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of Consul nodes to deploy.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EC2 Key pair
